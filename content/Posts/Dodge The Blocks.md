@@ -10,7 +10,8 @@ title: Dodge The Blocks
 weight: 10
 series:
 - Hugo 101
-
+categories:
+- Coding
 ---
 
 
