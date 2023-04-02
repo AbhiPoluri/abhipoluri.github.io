@@ -12,7 +12,6 @@ series:
 - Hugo 101
 aliases:
 - /blog/Sudoku Solver/
-
 categories:
 - Coding
 ---
