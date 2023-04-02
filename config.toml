@@ -55,9 +55,9 @@ disableHugoGeneratorInject = false
 
   # Metadata mostly used in document's head
   # 
-  description = "Nice theme for homepages and blogs"
+  description = "Abhi Poluri's blog/portfolio"
   keywords = ""
-  images = [""]
+  images = ["https://www.kindpng.com/picc/m/176-1763186_transparent-ap-logo-png-ap-logo-design-png.png"]
 
   # Home subtitle of the index page.
   #
