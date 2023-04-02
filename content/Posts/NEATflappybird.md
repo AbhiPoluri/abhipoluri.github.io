@@ -13,7 +13,7 @@ series:
 categories:
 - Coding
 - AI
-- Development
+- Python
 tags:
 - Python
 - NEAT
@@ -30,4 +30,4 @@ NEAT is a genetic algorithm that uses a neural network to evolve a population of
 
 # Try the Simulation out on Replit:
 [HERE](https://replit.com/@AbhiPoluri/NeatFlappy)
-<iframe src="https://giphy.com/embed/euuaA2cwLEUuI" width="480" height="409" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+<img src="https://media.tenor.com/WuaZ4G33BBoAAAAC/flappy-bird-flying.gif" width="50%" height="50%"/>
