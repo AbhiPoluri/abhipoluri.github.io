@@ -57,7 +57,7 @@ disableHugoGeneratorInject = false
   # 
   description = "Abhi Poluri's blog/portfolio"
   keywords = ""
-  images = ["https://www.kindpng.com/picc/m/176-1763186_transparent-ap-logo-png-ap-logo-design-png.png"]
+  images = []
 
   # Home subtitle of the index page.
   #
