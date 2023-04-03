@@ -26,11 +26,8 @@ This is my first game that i made without following a tutorial. I made this game
 <ul>
 <li>Finish second level</li>
 <li>Create an enemy sprite</li>
-<li>Add a pause menu</li>
-<li>Add a game over screen</li>
-<li>Add a win screen</li>
-<li>Add a score system</li>
-<li>Add a high score system</li>
+<li><s>Add a pause menu</s></li>
+<li><s>Add a game over screen</s></li>
 <li>Create boss sprite and behaviour</li>
 <li>Add an ingame shop for upgrades</li>
 </ul>

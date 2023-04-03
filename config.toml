@@ -111,8 +111,8 @@ disableHugoGeneratorInject = false
   #
   [params.footer]
     trademark = true
-    rss = true
-    copyright = true
+    rss = false
+    copyright = false
     author = true
 
     topText = []
@@ -182,7 +182,7 @@ disableHugoGeneratorInject = false
     copyright = '<a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>'
 
   [languages.fr]
-    subtitle  = "Hello Friend NG Theme"
+    subtitle  = ""
     weight    = 2
     copyright = '<a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>'
 
