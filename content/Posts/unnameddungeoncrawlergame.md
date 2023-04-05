@@ -25,7 +25,7 @@ series = ["Hugo 101"]
 
 # First Post:
 
-This is my first game that i made without following a tutorial. I made this game to learn how to use the Unity Engine and C# programming language. I specifically wanted to learn more on Enemy behaviours and how to make a game that is fun to play. Some struggles I had were making my own sprites for the environment, players and enemies as I have never been the artistic type. So far I have successfully add a main menu, finished the player controller, added a health system, added an enemy behaviour, added a sound effect system, added bullet FX and finished the first level.
+This is my first game that I made without following a tutorial. I made this game to learn how to use the Unity Engine and C# programming language. I specifically wanted to learn more on Enemy behaviours and how to make a game that is fun to play. Some struggles I had were making my own sprites for the environment, players and enemies as I have never been the artistic type. So far I have successfully add a main menu, finished the player controller, added a health system, added an enemy behaviour, added a sound effect system, added bullet FX and finished the first level.
 
 ## Some short term goals I have are:
 

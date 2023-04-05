@@ -57,7 +57,7 @@ disableHugoGeneratorInject = false
   # 
   description = "Abhi Poluri's blog/portfolio"
   keywords = ""
-  images = []
+  images = ["https://imgur.com/hMaCNB9"]
 
   # Home subtitle of the index page.
   #
