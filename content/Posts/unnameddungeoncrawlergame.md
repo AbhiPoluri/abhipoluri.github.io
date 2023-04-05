@@ -1,5 +1,5 @@
 +++
-title = "Unnamed Dungeon Crawler Game - Ongoing"
+title = "Unnamed Dungeon Crawler Game"
 description = ""
 type = ["posts","post"]
 tags = [
@@ -19,19 +19,21 @@ series = ["Hugo 101"]
   name = "Abhi Poluri"
 +++
 
+# Try the game out here:
+
+<iframe src="https://i.simmer.io/@AbhiPoluri/dungeon-game" style="width:960px;height:600px"></iframe>
+
+# First Post:
+
 This is my first game that i made without following a tutorial. I made this game to learn how to use the Unity Engine and C# programming language. I specifically wanted to learn more on Enemy behaviours and how to make a game that is fun to play. Some struggles I had were making my own sprites for the environment, players and enemies as I have never been the artistic type. So far I have successfully add a main menu, finished the player controller, added a health system, added an enemy behaviour, added a sound effect system, added bullet FX and finished the first level.
 
 ## Some short term goals I have are:
 
 <ul>
 <li>Finish second level</li>
-<li>Create an enemy sprite</li>
+<li><s>Create an enemy sprite</s></li>
 <li><s>Add a pause menu</s></li>
 <li><s>Add a game over screen</s></li>
-<li>Create boss sprite and behaviour</li>
-<li>Add an ingame shop for upgrades</li>
+<li><s>Create boss sprite and behaviour</s></li>
 </ul>
 
-# Try the game out here:
-
-<iframe src="https://i.simmer.io/@AbhiPoluri/dungeon-game" style="width:960px;height:600px"></iframe>
