@@ -19,7 +19,7 @@ series = ["Hugo 101"]
   name = "Abhi Poluri"
 +++
 
-# Try the game out here:
+## Try the game out here: Click to Start
 
 <iframe src="https://i.simmer.io/@AbhiPoluri/dungeon-game" style="width:960px;height:600px"></iframe>
 
@@ -37,3 +37,28 @@ This is my first game that i made without following a tutorial. I made this game
 <li><s>Create boss sprite and behaviour</s></li>
 </ul>
 
+# Second Post:
+
+I have added an Enemy Sprite and a Boss Sprite. I have also added a pause menu and a game over screen. I have also added a title screen a system to track how many kills the player has. I have nearly finsihed the second level. A big roadblock I am hitting is my artistic inability to counteract it I plan on hitting it as hard as i can and spending a few days on sprites alone to get them to a level I am happy with. I plan on changing the player sprite to have floating hands/gun reminiscent of Enter The Gungeon. 
+
+#### Known Issues:
+
+<ul>
+<li>Boss doesnt spawn sometimes</li>
+<li>Title-Screen looks like shit</li>
+<li>Title-Screen doesnt work in WebGL</li>
+</ul>
+
+##### See Image Below. 
+
+<img src=https://www.macgamestore.com/images_screenthumbs/enter-the-gungeon-104806.jpg />
+
+## Some short term goals I have are:
+
+<ul>
+<li>Redo Almost All Sprites</li>
+<li>Change Player Model</li>  
+<li>Finish second level</li>
+<li>Finish third level</li>
+<li>Finish fourth level</li>
+</ul>
