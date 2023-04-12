@@ -29,5 +29,6 @@ I utilised NeuroEvolution of Augmenting Topologies (NEAT) in python to create an
 NEAT is a genetic algorithm that uses a neural network to evolve a population of AI's to play a game. The AI's are given a fitness score based on how well they play the game. The AI's with the highest fitness score are then used to create the next generation of AI's. The AI's are given a random set of weights and biases to start with, and the AI's with the highest fitness score are given the best weights and biases. This process is repeated until the AI never loses.
 
 # Try the Simulation out on Replit:
+
 [HERE](https://replit.com/@AbhiPoluri/NeatFlappy)
 <img src="https://media.tenor.com/WuaZ4G33BBoAAAAC/flappy-bird-flying.gif" width="50%" height="50%"/>

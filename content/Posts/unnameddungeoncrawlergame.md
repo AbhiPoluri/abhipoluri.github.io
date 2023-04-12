@@ -30,7 +30,7 @@ This is my first game that I made without following a tutorial. I made this game
 ## Some short term goals I have are:
 
 <ul>
-<li>Finish second level</li>
+<li><s>Finish second level</s></li>
 <li><s>Create an enemy sprite</s></li>
 <li><s>Add a pause menu</s></li>
 <li><s>Add a game over screen</s></li>
@@ -44,7 +44,7 @@ I have added an Enemy Sprite and a Boss Sprite. I have also added a pause menu a
 #### Known Issues:
 
 <ul>
-<li>Boss doesnt spawn sometimes</li>
+<li><s>Boss doesnt spawn sometimes</s></li>
 <li>Title-Screen looks like shit</li>
 <li>Title-Screen doesnt work in WebGL</li>
 </ul>
@@ -56,9 +56,27 @@ I have added an Enemy Sprite and a Boss Sprite. I have also added a pause menu a
 ## Some short term goals I have are:
 
 <ul>
-<li>Redo Almost All Sprites</li>
-<li>Change Player Model</li>  
-<li>Finish second level</li>
-<li>Finish third level</li>
+<li><s>Redo Almost All Sprites</s></li>
+<li><s>Change Player Model</s></li>  
+<li><s>Finish second level</s></li>
+<li><s>Finish third level</s></li>
 <li>Finish fourth level</li>
 </ul>
+
+# Third Post:
+
+I added a new character sprite and revamped animations and the shooting system so it feels better for the player. One of the main things I hoped to add was a range d enemy so I went and added a skeleton that throws bones at the player and retreats when the player approches. This led me to adding a healthpool and corresponding health bar for the player because when I was game testing the enemy projectiles instantly killing the player was jarring and unfair. I plan on polishing environmental sprites and objects and adding a background. After I finish that I will add lots of new levels and a level selector.
+
+##### See Images Below. 
+
+<img src=https://i.imgur.com/g4c0fFp.png height=75% width=75%/>
+<img src=https://i.imgur.com/7BT45Z8.png height=75% width=75%/>
+
+## Some short term goals I have are:
+
+<ul>
+<li>Polish Environment</li>
+<li>Finish fourth level</li>
+<li>Finish fifth level</li>
+<li>Add Background</li>
+
