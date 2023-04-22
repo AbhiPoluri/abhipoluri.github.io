@@ -79,4 +79,24 @@ I added a new character sprite and revamped animations and the shooting system s
 <li>Finish fourth level</li>
 <li>Finish fifth level</li>
 <li>Add Background</li>
+</ul>
+
+# Fourth Post:
+
+I have accomplished zero goals since my last post. I have been struggling with creating Ideas on levels and been feeling un-motivated to work on the game. Since the last post I have added 4 new guns: A shotgun, a machine pistol, a sniper rifle and a grenade launcher. So far they unlock as you progress through the game. I hope to create an animation screen for unlocking the wepons whenever you unlock them after the level. I need to create a more robust weapon switching system aswell as a tutorial for the game. Something im proud of is the new spawning script it uses a weighted algorithm to spawn the two enemy types randomly.
+Here are photos of all the weapons in the game so far.
+
+##### See Images Below.
+
+<img src=https://i.imgur.com/vQbvWDM.png height=75% width=75%/>
+
+## Some short term goals I have are:
+<ul>
+<li>Finish fourth level</li>
+<li>Finish fifth level</li>
+<li>Finish sixth level</li>
+<li>Weapon Unlock Screen</li>
+<li>Weapon Tutorial</li>
+<li>Weapon Switching System</li>
+<li>Weapon Stats</li>
 
