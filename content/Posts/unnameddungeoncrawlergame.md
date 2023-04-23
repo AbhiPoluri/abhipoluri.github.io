@@ -97,6 +97,6 @@ Here are photos of all the weapons in the game so far.
 <li>Finish sixth level</li>
 <li>Weapon Unlock Screen</li>
 <li>Weapon Tutorial</li>
-<li>Weapon Switching System</li>
+<li><s>Weapon Switching System</s></li>
 <li>Weapon Stats</li>
 
