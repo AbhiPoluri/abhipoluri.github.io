@@ -28,6 +28,7 @@ series = ["Hugo 101"]
 <ul>WASD- movement</ul>
 <ul>Left Shift- sprint</ul>
 <ul>E- switch weapon</ul>
+<ul>Space- Dash</ul>
 
 ### Known Issues:
 <ul>Guns can be bought more than once in the shop.</ul>
@@ -108,4 +109,15 @@ Here are photos of all the weapons in the game so far.
 <li>Weapon Tutorial</li>
 <li><s>Weapon Switching System</s></li>
 <li>Weapon Stats</li>
+</ul>
 
+# Fifth Post:
+
+I added a lot of stuff since the last post such as a shop/gold system and a dash both of these additions enhance the gameplay and make it feel more fun to play the game. I feel the only thing left to add is more levels and perhaps flesh out the story a bit more.
+
+## Some short term goals I have are:
+<ul>
+<li>Add the rest of the levels</li>
+<li>Add a tutorial</li>
+<li>Write a simple story</li>
+</ul>
