@@ -1,6 +1,6 @@
 +++
 title = "About"
-date = "2023-04-01"
+date = "2024-09-30"
 aliases = ["about-us","about-hugo","contact"]
 [ author ]
   name = "Abhi Poluri"
