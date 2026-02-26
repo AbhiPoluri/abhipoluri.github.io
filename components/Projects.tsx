@@ -1,3 +1,5 @@
+"use client";
+
 import ScrollReveal from "./ScrollReveal";
 import { projects } from "@/data/projects";
 

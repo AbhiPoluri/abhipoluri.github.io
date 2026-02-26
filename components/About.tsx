@@ -1,3 +1,5 @@
+"use client";
+
 import ScrollReveal from "./ScrollReveal";
 import { GradCap, Lightbulb, Cpu } from "./Icons";
 import type { ComponentType } from "react";
