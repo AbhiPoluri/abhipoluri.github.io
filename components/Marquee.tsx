@@ -1,44 +1,55 @@
-const items = [
-  "AI Dashboards", "Retail Arbitrage", "Next.js", "FastAPI",
-  "Simon Fraser University", "Entrepreneurship", "Python", "Business Strategy",
-  "React", "Product Thinking", "Docker", "Market Research",
-  "AI / ML", "Computer Vision",
+// Replaced scrolling ticker with a clean editorial info strip
+
+const infoItems = [
+  { label: "Location", value: "Vancouver, BC" },
+  { label: "Studying", value: "BBA · Simon Fraser University" },
+  { label: "Status",   value: "Open to internships" },
+  { label: "Focus",    value: "Product · Strategy · AI" },
 ];
 
-export default function Marquee() {
-  const doubled = [...items, ...items];
-
+export default function InfoStrip() {
   return (
     <div
-      className="overflow-hidden border-b select-none"
       style={{
-        padding: "14px 0",
+        borderBottom: "1px solid var(--border)",
         background: "var(--surface)",
-        borderColor: "var(--border)",
       }}
     >
-      <div className="marquee-track">
-        {doubled.map((item, i) => (
-          <span
-            key={i}
+      <div
+        style={{
+          maxWidth: 1080,
+          margin: "0 auto",
+          padding: "0 32px",
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+        }}
+        className="info-strip-grid"
+      >
+        {infoItems.map((item, i) => (
+          <div
+            key={item.label}
             style={{
-              whiteSpace: "nowrap",
-              padding: "0 24px",
-              fontSize: 12,
-              fontWeight: 600,
-              color: "var(--muted)",
-              letterSpacing: ".06em",
-              textTransform: "uppercase",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 24,
+              padding: "14px 0",
+              borderRight: i < infoItems.length - 1 ? "1px solid var(--border)" : "none",
+              paddingRight: i < infoItems.length - 1 ? 24 : 0,
+              paddingLeft: i > 0 ? 24 : 0,
             }}
           >
-            {item}
-            <span style={{ color: "var(--faint)", fontSize: 16 }}>·</span>
-          </span>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--faint)", marginBottom: 3 }}>
+              {item.label}
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)" }}>
+              {item.value}
+            </div>
+          </div>
         ))}
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .info-strip-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

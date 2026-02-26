@@ -1,5 +1,81 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+
+const CYCLE_WORDS = ["products.", "quickly.", "things that work."];
+const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&";
+
+function useScramble(target: string, trigger: boolean) {
+  const [display, setDisplay] = useState(target);
+  const frameRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!trigger) return;
+    let iteration = 0;
+    const total = target.length * 3;
+
+    const tick = () => {
+      setDisplay(
+        target
+          .split("")
+          .map((char, idx) => {
+            if (char === " ") return " ";
+            if (idx < iteration / 3) return char;
+            return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+          })
+          .join("")
+      );
+      iteration++;
+      if (iteration <= total) {
+        frameRef.current = setTimeout(tick, 28);
+      }
+    };
+    tick();
+    return () => { if (frameRef.current) clearTimeout(frameRef.current); };
+  }, [target, trigger]);
+
+  return display;
+}
+
+function TypeCycler() {
+  const [index, setIndex] = useState(0);
+  const [scramble, setScramble] = useState(false);
+  const word = CYCLE_WORDS[index];
+  const displayed = useScramble(word, scramble);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScramble(false);
+      setTimeout(() => {
+        setIndex((i) => (i + 1) % CYCLE_WORDS.length);
+        setScramble(true);
+      }, 80);
+    }, 2800);
+    return () => clearInterval(interval);
+  }, []);
+
+  // kick first scramble
+  useEffect(() => {
+    const t = setTimeout(() => setScramble(true), 600);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <span
+      style={{
+        color: "var(--accent-warm)",
+        fontStyle: "italic",
+        fontWeight: 300,
+        fontFamily: "inherit",
+        minWidth: "6ch",
+        display: "inline-block",
+      }}
+    >
+      {displayed}
+    </span>
+  );
+}
+
 export default function Hero() {
   return (
     <section
@@ -14,7 +90,7 @@ export default function Hero() {
         overflow: "hidden",
       }}
     >
-      {/* Aurora background — faint in light, vivid in dark */}
+      {/* Aurora background */}
       <div className="aurora" aria-hidden="true">
         <div className="aurora-blob aurora-blob-1" />
         <div className="aurora-blob aurora-blob-2" />
@@ -25,13 +101,35 @@ export default function Hero() {
 
       {/* Hero content */}
       <div style={{ maxWidth: 1080, margin: "0 auto", width: "100%", padding: "0 32px", position: "relative", zIndex: 2 }}>
-        {/* Eyebrow */}
+
+        {/* Eyebrow with live indicator */}
         <div
-          className="a-scale-in d1 inline-flex items-center gap-2 mb-7"
-          style={{ fontSize: 12, fontWeight: 600, color: "var(--hero-muted)", letterSpacing: ".04em", textTransform: "uppercase" }}
+          className="a-scale-in d1 inline-flex items-center gap-3 mb-8"
+          style={{ fontSize: 12, fontWeight: 600, color: "var(--hero-muted)", letterSpacing: ".04em" }}
         >
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--hero-dot)", flexShrink: 0 }} />
-          Simon Fraser University · Vancouver, BC
+          {/* Open to work badge */}
+          <span
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              background: "var(--accent-warm-muted)",
+              border: "1px solid var(--accent-warm)",
+              color: "var(--accent-warm)",
+              padding: "4px 10px", borderRadius: 99,
+              fontSize: 11, fontWeight: 700, letterSpacing: ".04em",
+            }}
+          >
+            <span
+              className="live-dot"
+              style={{
+                width: 6, height: 6, borderRadius: "50%",
+                background: "var(--accent-warm)", flexShrink: 0,
+              }}
+            />
+            Open to internships
+          </span>
+
+          <span style={{ color: "var(--hero-dot)", opacity: 0.4 }}>·</span>
+          <span>Vancouver, BC</span>
         </div>
 
         {/* Headline */}
@@ -46,9 +144,9 @@ export default function Hero() {
             marginBottom: 36,
           }}
         >
-          <span style={{ display: "block" }}>Business student.</span>
+          <span style={{ display: "block" }}>I ship</span>
           <span style={{ display: "block" }}>
-            <em style={{ fontStyle: "italic", fontWeight: 300 }}>Product</em> builder.
+            <TypeCycler />
           </span>
         </h1>
 
@@ -57,47 +155,51 @@ export default function Hero() {
           className="a-fade-up d3"
           style={{ display: "flex", alignItems: "flex-start", gap: 48, flexWrap: "wrap", paddingBottom: 32 }}
         >
-          <p style={{ fontSize: 15, color: "var(--hero-muted)", lineHeight: 1.65, maxWidth: 440, flex: 1 }}>
-            Studying business at Simon Fraser University, with a few years of building behind
-            me — AI dashboards, planning tools, a side business that got off the ground.
-            Looking for roles where product thinking and strategy overlap.
+          <p style={{ fontSize: 15, color: "var(--hero-muted)", lineHeight: 1.7, maxWidth: 460, flex: 1 }}>
+            Building at SFU — AI dashboards, planning tools, a side business that actually made money.
+            Looking for the role where product thinking and execution meet.
           </p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", paddingTop: 2 }}>
             <a
               href="#work"
+              className="btn-accent btn-magnetic"
               style={{
-                fontSize: 13, fontWeight: 600,
-                background: "var(--hero-btn-bg)", color: "var(--hero-btn-text)",
-                padding: "10px 22px", borderRadius: 8, textDecoration: "none",
-                display: "inline-flex", alignItems: "center", gap: 6,
-                transition: "opacity .2s",
+                fontSize: 13, fontWeight: 700,
+                padding: "11px 24px", borderRadius: 8, textDecoration: "none",
+                display: "inline-flex", alignItems: "center", gap: 7,
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = ".8")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >
-              View Work →
+              See what I&apos;ve built
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
             </a>
             <a
               href="/resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
+              className="btn-magnetic"
               style={{
                 fontSize: 13, fontWeight: 600,
                 color: "var(--hero-ghost-text)",
                 border: "1px solid var(--hero-ghost-border)",
-                padding: "9px 20px", borderRadius: 8,
-                textDecoration: "none", transition: "color .2s, border-color .2s",
+                padding: "10px 20px", borderRadius: 8,
+                textDecoration: "none",
+                transition: "color .2s, border-color .2s, background .2s",
+                display: "inline-flex", alignItems: "center", gap: 6,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = "var(--hero-text)";
                 e.currentTarget.style.borderColor = "var(--hero-muted)";
+                e.currentTarget.style.background = "rgba(128,128,128,0.06)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = "var(--hero-ghost-text)";
                 e.currentTarget.style.borderColor = "var(--hero-ghost-border)";
+                e.currentTarget.style.background = "transparent";
               }}
             >
-              Download Resume
+              Resume ↗
             </a>
           </div>
         </div>
@@ -117,8 +219,8 @@ export default function Hero() {
       >
         {[
           { val: "$3–5k", lbl: "Revenue · Retail Arbitrage" },
-          { val: "4+",    lbl: "Shipped projects" },
-          { val: "SFU",   lbl: "Simon Fraser University" },
+          { val: "4+",    lbl: "Products shipped" },
+          { val: "2028",  lbl: "SFU · BBA Expected" },
         ].map((s, i) => (
           <div
             key={s.val}

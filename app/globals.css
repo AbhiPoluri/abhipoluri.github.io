@@ -19,14 +19,21 @@
   --dark-surface: #1a1a18;
   --dark-border:  #2a2a27;
 
+  /* Sunset orange accent */
+  --accent-warm:        #ff6b35;
+  --accent-warm-hover:  #f55a20;
+  --accent-warm-muted:  rgba(255, 107, 53, 0.12);
+  --accent-warm-glow:   rgba(255, 107, 53, 0.28);
+  --accent-warm-text:   #ffffff;
+
   /* Hero theme tokens */
   --hero-bg:         var(--bg);
   --hero-text:       var(--ink);
   --hero-muted:      var(--muted);
-  --hero-dot:        var(--accent);
+  --hero-dot:        var(--accent-warm);
   --hero-border:     var(--border);
-  --hero-btn-bg:     var(--ink);
-  --hero-btn-text:   var(--bg);
+  --hero-btn-bg:     var(--accent-warm);
+  --hero-btn-text:   #ffffff;
   --hero-ghost-text: var(--muted);
   --hero-ghost-border: var(--border);
 
@@ -53,14 +60,21 @@
   --dark-surface: #0b0b16;
   --dark-border:  rgba(255,255,255,0.06);
 
+  /* Sunset orange — lighter for dark mode */
+  --accent-warm:        #ff8c6b;
+  --accent-warm-hover:  #ff7550;
+  --accent-warm-muted:  rgba(255, 140, 107, 0.14);
+  --accent-warm-glow:   rgba(255, 140, 107, 0.22);
+  --accent-warm-text:   #ffffff;
+
   /* Hero theme tokens */
   --hero-bg:         #06060e;
   --hero-text:       #ffffff;
   --hero-muted:      rgba(255,255,255,0.55);
-  --hero-dot:        #60a5fa;
+  --hero-dot:        var(--accent-warm);
   --hero-border:     rgba(255,255,255,0.1);
-  --hero-btn-bg:     #ffffff;
-  --hero-btn-text:   #06060e;
+  --hero-btn-bg:     var(--accent-warm);
+  --hero-btn-text:   #ffffff;
   --hero-ghost-text: rgba(255,255,255,0.6);
   --hero-ghost-border: rgba(255,255,255,0.2);
 
@@ -84,6 +98,7 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   transition: background 0.3s ease, color 0.3s ease;
+  cursor: auto;
 }
 
 /* Smooth theme transitions on all key properties */
@@ -97,11 +112,20 @@ body {
   transition: none !important;
 }
 
+
 /* ── Keyframes ─────────────────────────────────────── */
 @keyframes fadeUp  { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
 @keyframes scaleIn { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
 @keyframes marquee { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+@keyframes pulse-warm {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-warm-glow); }
+  50%       { box-shadow: 0 0 0 8px rgba(255,107,53,0); }
+}
+@keyframes counter-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
 
 /* ── Aurora blob animations ──────────────────────────── */
 @keyframes aurora1 {
@@ -225,7 +249,7 @@ body {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 32s linear infinite;
+  animation: marquee 28s linear infinite;
   transition: none !important;
 }
 .marquee-track:hover { animation-play-state: paused; }
@@ -239,36 +263,65 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--surface);
+  background: var(--accent-warm-muted);
   transform: translateX(-101%);
   transition: transform .35s cubic-bezier(.16,1,.3,1) !important;
   z-index: 0;
 }
 .project-row:hover::before { transform: translateX(0); }
 .project-row > * { position: relative; z-index: 1; }
-.project-row:hover .project-title-text { color: var(--accent); }
-.project-row:hover .project-arrow { color: var(--accent); transform: translate(3px,-3px); }
+.project-row:hover .project-title-text { color: var(--accent-warm); }
+.project-row:hover .project-arrow { color: var(--accent-warm); transform: translate(4px,-4px); }
+.project-row:hover .project-number { color: var(--accent-warm); }
 
-.project-arrow { transition: color .2s, transform .2s !important; color: var(--faint); }
+.project-arrow { transition: color .2s, transform .25s cubic-bezier(.16,1,.3,1) !important; color: var(--faint); }
+.project-number { transition: color .2s !important; }
 
 /* ── Stat card hover ────────────────────────────────── */
-.stat-card { }
+.stat-card { transition: background .2s !important; }
 .stat-card:hover { background: var(--surface); }
+.stat-card:hover .stat-val { color: var(--accent-warm); }
 
 /* ── Highlight row hover ────────────────────────────── */
-.hl-row { border-radius: 10px; }
-.hl-row:hover { background: var(--surface); }
+.hl-row { border-radius: 10px; transition: background .2s !important; }
+.hl-row:hover { background: var(--accent-warm-muted); }
+.hl-row:hover .hl-icon {
+  background: var(--accent-warm) !important;
+  border-color: var(--accent-warm) !important;
+  color: white !important;
+}
+.hl-icon { transition: background .2s, border-color .2s, color .2s !important; }
 
 /* ── Skill chip hover ───────────────────────────────── */
 .skill-chip {
   transition: color .2s, border-color .2s, background .2s, transform .2s, box-shadow .2s !important;
 }
 .skill-chip:hover {
-  color: var(--ink);
-  border-color: var(--faint);
-  background: var(--surface);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  color: var(--accent-warm);
+  border-color: var(--accent-warm);
+  background: var(--accent-warm-muted);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--accent-warm-glow);
+}
+
+/* ── Accent button ──────────────────────────────────── */
+.btn-accent {
+  background: var(--accent-warm);
+  color: var(--accent-warm-text);
+  transition: background .2s, transform .2s, box-shadow .2s !important;
+}
+.btn-accent:hover {
+  background: var(--accent-warm-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--accent-warm-glow);
+}
+.btn-accent:active {
+  transform: translateY(0);
+}
+
+/* ── Magnetic button ────────────────────────────────── */
+.btn-magnetic {
+  transition: transform 0.3s cubic-bezier(.16,1,.3,1) !important;
 }
 
 /* ── Contact bg text ────────────────────────────────── */
@@ -280,7 +333,7 @@ body {
   font-size: clamp(72px, 13vw, 180px);
   font-weight: 800;
   letter-spacing: -0.04em;
-  color: var(--surface);
+  color: var(--dark-surface);
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -308,3 +361,37 @@ body {
   background: var(--surface);
   border-color: var(--faint);
 }
+
+/* ── Animated counter ──────────────────────────────── */
+.counter-val {
+  animation: counter-in 0.6s cubic-bezier(.16,1,.3,1) both;
+}
+
+/* ── Open to work badge ─────────────────────────────── */
+@keyframes blink-warm {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+.live-dot {
+  animation: blink-warm 2s ease-in-out infinite;
+}
+
+/* ── Type scramble ──────────────────────────────────── */
+.scramble-char {
+  display: inline-block;
+  transition: none;
+}
+
+/* ── Tag pill ───────────────────────────────────────── */
+.tag-pill {
+  transition: background .2s, border-color .2s, color .2s !important;
+}
+.tag-pill:hover {
+  background: var(--accent-warm-muted);
+  border-color: var(--accent-warm);
+  color: var(--accent-warm);
+}
+
+/* ── Nav accent ────────────────────────────────────── */
+.nav-link:hover { color: var(--ink) !important; }
+.nav-link.active { color: var(--accent-warm) !important; }

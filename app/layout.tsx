@@ -26,7 +26,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         {/* Prevent flash of wrong theme */}
         <script
@@ -35,7 +35,9 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${jakarta.variable} antialiased`}>{children}</body>
+      <body className={`${jakarta.variable} antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }

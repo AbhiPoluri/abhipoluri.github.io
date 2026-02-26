@@ -27,13 +27,11 @@ export default function Nav() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "border-b backdrop-blur-md" : "border-b border-transparent"
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b"
       style={
         scrolled
-          ? { background: "color-mix(in srgb, var(--bg) 92%, transparent)", borderColor: "var(--border)" }
-          : {}
+          ? { background: "var(--bg)", borderColor: "var(--border)" }
+          : { background: "transparent", borderColor: "transparent" }
       }
     >
       <nav
@@ -44,8 +42,10 @@ export default function Nav() {
         <a
           href="#"
           onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-          className="text-sm font-bold tracking-tight transition-opacity hover:opacity-60"
-          style={{ color: "var(--ink)", textDecoration: "none" }}
+          className="text-sm font-bold tracking-tight"
+          style={{ color: "var(--ink)", textDecoration: "none", transition: "color .2s" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-warm)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink)")}
         >
           Abhi Poluri
         </a>
@@ -56,8 +56,8 @@ export default function Nav() {
             <button
               key={l.href}
               onClick={() => go(l.href)}
-              className="text-[13px] font-medium transition-colors"
-              style={{ color: "var(--muted)", background: "none", border: "none", cursor: "pointer" }}
+              className="nav-link text-[13px] font-medium"
+              style={{ color: "var(--muted)", background: "none", border: "none", cursor: "pointer", transition: "color .2s" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink)")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "var(--muted)")}
             >
@@ -71,8 +71,8 @@ export default function Nav() {
             href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-semibold px-4 py-[7px] rounded-md transition-opacity hover:opacity-70"
-            style={{ background: "var(--ink)", color: "var(--bg)", textDecoration: "none" }}
+            className="btn-accent text-xs font-semibold px-4 py-[7px] rounded-md"
+            style={{ textDecoration: "none" }}
           >
             Resume ↗
           </a>
@@ -108,7 +108,9 @@ export default function Nav() {
               key={l.href}
               onClick={() => go(l.href)}
               className="text-left text-sm font-medium"
-              style={{ color: "var(--muted)", background: "none", border: "none", cursor: "pointer" }}
+              style={{ color: "var(--muted)", background: "none", border: "none", cursor: "pointer", transition: "color .2s" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-warm)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--muted)")}
             >
               {l.label}
             </button>
@@ -117,8 +119,8 @@ export default function Nav() {
             href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-semibold px-4 py-2 rounded-md text-center"
-            style={{ background: "var(--ink)", color: "var(--bg)", textDecoration: "none" }}
+            className="btn-accent text-xs font-semibold px-4 py-2 rounded-md text-center"
+            style={{ textDecoration: "none" }}
           >
             Resume ↗
           </a>

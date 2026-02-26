@@ -15,7 +15,7 @@ export default function Contact() {
     >
       {/* Large background text */}
       <div className="contact-bg-text" aria-hidden="true">
-        Let&apos;s talk.
+        Let&apos;s build.
       </div>
 
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "0 32px", position: "relative" }}>
@@ -31,12 +31,14 @@ export default function Contact() {
               color: "#ffffff", marginBottom: 16,
             }}
           >
-            Let&apos;s{" "}
-            <em style={{ fontStyle: "italic", fontWeight: 300, color: "#8585ff" }}>talk.</em>
+            Let&apos;s build{" "}
+            <em style={{ fontStyle: "italic", fontWeight: 300, color: "var(--accent-warm)" }}>
+              something.
+            </em>
           </h2>
-          <p style={{ fontSize: 15, color: "#6b6b68", lineHeight: 1.65, maxWidth: 420, marginBottom: 48 }}>
-            Open to internships and collaborations — especially in product,
-            strategy, or anything that mixes business with building.
+          <p style={{ fontSize: 15, color: "#6b6b68", lineHeight: 1.65, maxWidth: 440, marginBottom: 48 }}>
+            Open to internships and collabs — especially in product, strategy,
+            or anything where building meets business. Fast response, I promise.
           </p>
         </ScrollReveal>
 
@@ -45,21 +47,18 @@ export default function Contact() {
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 56 }}>
             <a
               href="mailto:abhiram.poluri@gmail.com"
+              className="btn-accent btn-magnetic"
               style={{
                 display: "inline-flex", alignItems: "center", gap: 10,
-                background: "#fff", color: "var(--dark-bg)",
                 padding: "13px 26px", borderRadius: 10,
                 fontSize: 14, fontWeight: 700, textDecoration: "none",
-                transition: "opacity .2s, transform .2s",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.opacity = ".9"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.transform = "none"; }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
-              abhiram.poluri@gmail.com
+              Say hello ↗
             </a>
             <a
               href="/resume.pdf"
@@ -70,10 +69,18 @@ export default function Contact() {
                 border: "1px solid var(--dark-border)", color: "#8a8a86",
                 padding: "12px 24px", borderRadius: 10,
                 fontSize: 14, fontWeight: 600, textDecoration: "none",
-                transition: "border-color .2s, color .2s",
+                transition: "border-color .2s, color .2s, background .2s",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#4b4b47"; e.currentTarget.style.color = "#ccc"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--dark-border)"; e.currentTarget.style.color = "#8a8a86"; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--accent-warm)";
+                e.currentTarget.style.color = "var(--accent-warm)";
+                e.currentTarget.style.background = "var(--accent-warm-muted)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--dark-border)";
+                e.currentTarget.style.color = "#8a8a86";
+                e.currentTarget.style.background = "transparent";
+              }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
@@ -86,7 +93,10 @@ export default function Contact() {
 
         {/* Bottom bar */}
         <ScrollReveal delay={150}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, paddingTop: 40, borderTop: "1px solid var(--dark-border)" }}>
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            flexWrap: "wrap", gap: 16, paddingTop: 40, borderTop: "1px solid var(--dark-border)",
+          }}>
             <div style={{ display: "flex", gap: 24 }}>
               {[
                 { label: "LinkedIn", href: "https://www.linkedin.com/in/abhiram-poluri-306347270/" },
@@ -98,7 +108,7 @@ export default function Contact() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ fontSize: 13, fontWeight: 500, color: "#4b4b47", textDecoration: "none", transition: "color .2s" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#8585ff")}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-warm)")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "#4b4b47")}
                 >
                   {l.label} ↗
@@ -106,11 +116,10 @@ export default function Contact() {
               ))}
             </div>
             <span style={{ fontSize: 12, color: "#353533" }}>
-              © {new Date().getFullYear()} Abhi Poluri
+              © {new Date().getFullYear()} Abhi Poluri · Built with Next.js
             </span>
           </div>
         </ScrollReveal>
-
       </div>
     </section>
   );
