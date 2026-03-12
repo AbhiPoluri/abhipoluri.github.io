@@ -1,23 +1,110 @@
 "use client";
 
+import { useState } from "react";
 import ScrollReveal from "./ScrollReveal";
 import { projects } from "@/data/projects";
-import { Zap, TrendingUp, Lightbulb } from "./Icons";
+import { Zap, Lightbulb } from "./Icons";
 import type { ComponentType } from "react";
 
 type IconComp = ComponentType<{ size?: number; className?: string }>;
 
 const typeMeta: Record<string, { label: string; color: string; bg: string }> = {
-  tech:     { label: "Technical",    color: "#2563eb", bg: "rgba(37,99,235,0.08)"  },
-  business: { label: "Business",     color: "#15803d", bg: "rgba(21,128,61,0.08)"  },
-  framework:{ label: "Framework",    color: "#7c3aed", bg: "rgba(124,58,237,0.08)" },
+  tech:      { label: "Technical", color: "#2563eb", bg: "rgba(37,99,235,0.08)"  },
+  business:  { label: "Business",  color: "#15803d", bg: "rgba(21,128,61,0.08)"  },
+  framework: { label: "Framework", color: "#7c3aed", bg: "rgba(124,58,237,0.08)" },
 };
 
 const impactIcons: Record<string, IconComp> = {
   tech:      Zap,
-  business:  TrendingUp,
+  business:  Zap,
   framework: Lightbulb,
 };
+
+// Gradient placeholders for projects without a live URL
+const placeholderGradients: Record<number, string> = {
+  4: "linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0c4a6e 100%)",
+  5: "linear-gradient(135deg, #0f0a1e 0%, #1e1040 40%, #2d1b69 100%)",
+};
+
+function BrowserPreview({ previewUrl, title, projectId }: { previewUrl: string | null; title: string; projectId: number }) {
+  const [iframeErr, setIframeErr] = useState(false);
+  const displayUrl = previewUrl ? previewUrl.replace("https://", "") : null;
+
+  return (
+    <div style={{
+      borderRadius: "10px 10px 0 0",
+      overflow: "hidden",
+      border: "1px solid var(--border)",
+      borderBottom: "none",
+      background: "#111",
+    }}>
+      {/* Browser chrome */}
+      <div style={{
+        background: "#1a1a1a",
+        padding: "8px 12px",
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        borderBottom: "1px solid #2a2a2a",
+      }}>
+        <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
+          {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
+            <span key={c} style={{ width: 9, height: 9, borderRadius: "50%", background: c, display: "block" }} />
+          ))}
+        </div>
+        <div style={{
+          flex: 1,
+          background: "#2a2a2a",
+          borderRadius: 5,
+          padding: "3px 10px",
+          fontSize: 11,
+          color: "#888",
+          fontFamily: "var(--font-mono, monospace)",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}>
+          {displayUrl ?? title.toLowerCase().replace(/\s+/g, "-")}
+        </div>
+      </div>
+
+      {/* Preview area */}
+      <div style={{ height: 200, overflow: "hidden", position: "relative", background: "#0a0a0a" }}>
+        {previewUrl && !iframeErr ? (
+          <>
+            <iframe
+              src={previewUrl}
+              title={title}
+              style={{
+                width: "200%",
+                height: "200%",
+                transform: "scale(0.5)",
+                transformOrigin: "top left",
+                border: "none",
+                pointerEvents: "none",
+              }}
+              onError={() => setIframeErr(true)}
+              sandbox="allow-scripts allow-same-origin"
+            />
+            {/* Click overlay — prevent iframe interaction, let card handle click */}
+            <div style={{ position: "absolute", inset: 0 }} />
+          </>
+        ) : (
+          <div style={{
+            width: "100%",
+            height: "100%",
+            background: placeholderGradients[projectId] ?? "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+            <span style={{ fontSize: 28, opacity: 0.15 }}>⬡</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function Projects() {
   return (
@@ -28,22 +115,18 @@ export default function Projects() {
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "0 32px" }}>
         {/* Header */}
         <ScrollReveal>
-          <div
-            style={{
-              display: "flex", alignItems: "baseline", justifyContent: "space-between",
-              paddingBottom: 24, borderBottom: "1px solid var(--border)",
-            }}
-          >
-            <div>
-              <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--muted)" }}>
-                Things I&apos;ve Built
-              </span>
-            </div>
+          <div style={{
+            display: "flex", alignItems: "baseline", justifyContent: "space-between",
+            paddingBottom: 24, borderBottom: "1px solid var(--border)",
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--muted)" }}>
+              Things I&apos;ve Built
+            </span>
             <a
               href="https://github.com/AbhiPoluri"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ fontSize: 13, fontWeight: 600, color: "var(--accent-warm)", textDecoration: "none", display: "flex", alignItems: "center", gap: 4, transition: "opacity .2s" }}
+              style={{ fontSize: 13, fontWeight: 600, color: "var(--accent-warm)", textDecoration: "none", transition: "opacity .2s" }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             >
@@ -52,81 +135,95 @@ export default function Projects() {
           </div>
         </ScrollReveal>
 
-        {/* Project rows */}
-        <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+        {/* Card grid */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          gap: 24,
+          paddingTop: 40,
+          paddingBottom: 48,
+        }}>
           {projects.map((project, i) => {
             const meta = typeMeta[project.type] ?? typeMeta.tech;
             const ImpactIcon: IconComp = impactIcons[project.type] ?? Zap;
             return (
-              <ScrollReveal key={project.id} delay={i * 80}>
-                <li
-                  className="project-row"
+              <ScrollReveal key={project.id} delay={i * 70}>
+                <div
+                  className="project-card"
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "52px 1fr auto",
-                    alignItems: "start",
-                    gap: 24,
-                    borderBottom: "1px solid var(--border)",
-                    cursor: "pointer",
-                    borderRadius: 4,
+                    borderRadius: 12,
+                    border: "1px solid var(--border)",
+                    overflow: "hidden",
+                    cursor: project.link ? "pointer" : "default",
+                    transition: "border-color .2s, transform .2s, box-shadow .2s",
+                    background: "var(--bg)",
                   }}
                   onClick={() => { if (project.link) window.open(project.link, "_blank"); }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "var(--accent-warm)";
+                    e.currentTarget.style.transform = "translateY(-3px)";
+                    e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.18)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "var(--border)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
                 >
-                  {/* Number */}
-                  <span
-                    className="project-number"
-                    style={{
-                      fontSize: 12, fontWeight: 700, color: "var(--faint)",
-                      fontVariantNumeric: "tabular-nums", paddingTop: 30,
-                    }}
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
+                  {/* Browser preview */}
+                  <BrowserPreview previewUrl={project.previewUrl} title={project.title} projectId={project.id} />
 
-                  {/* Main */}
-                  <div style={{ padding: "28px 0" }}>
-                    <div
-                      className="project-title-text"
-                      style={{
-                        fontSize: "clamp(18px, 2.2vw, 24px)",
-                        fontWeight: 700,
-                        letterSpacing: "-0.015em",
-                        color: "var(--ink)",
-                        marginBottom: 8,
-                        transition: "color .2s",
-                      }}
-                    >
-                      {project.title}
+                  {/* Info */}
+                  <div style={{ padding: "20px 22px 22px" }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
+                      <span
+                        style={{
+                          fontSize: "clamp(16px, 1.8vw, 20px)",
+                          fontWeight: 700,
+                          letterSpacing: "-0.015em",
+                          color: "var(--ink)",
+                        }}
+                      >
+                        {project.title}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 10, fontWeight: 700, letterSpacing: ".06em",
+                          textTransform: "uppercase",
+                          background: meta.bg, color: meta.color,
+                          padding: "3px 7px", borderRadius: 5, flexShrink: 0, marginLeft: 8,
+                        }}
+                      >
+                        {meta.label}
+                      </span>
                     </div>
-                    <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, maxWidth: 520 }}>
+
+                    <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, margin: "0 0 12px" }}>
                       {project.description.split(".")[0]}.
-                    </div>
+                    </p>
 
-                    {/* Impact badge */}
-                    <div
-                      style={{
-                        display: "inline-flex", alignItems: "center", gap: 5,
-                        marginTop: 12,
-                        background: "var(--accent-warm-muted)",
-                        border: "1px solid var(--accent-warm)",
-                        padding: "4px 10px", borderRadius: 99,
-                        fontSize: 11, fontWeight: 600,
-                        color: "var(--accent-warm)",
-                      }}
-                    >
+                    {/* Impact */}
+                    <div style={{
+                      display: "inline-flex", alignItems: "center", gap: 5,
+                      background: "var(--accent-warm-muted)",
+                      border: "1px solid var(--accent-warm)",
+                      padding: "3px 9px", borderRadius: 99,
+                      fontSize: 11, fontWeight: 600,
+                      color: "var(--accent-warm)",
+                      marginBottom: 12,
+                    }}>
                       <ImpactIcon size={11} /> {project.impact}
                     </div>
 
                     {/* Tags */}
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>
+                    <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
                       {project.tags.slice(0, 4).map((tag) => (
                         <span
                           key={tag}
-                          className="tag-pill"
                           style={{
                             fontSize: 11, background: "var(--surface)",
                             border: "1px solid var(--border)",
-                            color: "var(--muted)", padding: "3px 10px",
+                            color: "var(--muted)", padding: "2px 8px",
                             borderRadius: 99, fontWeight: 500,
                           }}
                         >
@@ -135,36 +232,20 @@ export default function Projects() {
                       ))}
                     </div>
                   </div>
-
-                  {/* Meta */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, paddingTop: 28 }}>
-                    <span
-                      style={{
-                        fontSize: 11, fontWeight: 700, letterSpacing: ".06em",
-                        textTransform: "uppercase",
-                        background: meta.bg, color: meta.color,
-                        padding: "3px 8px", borderRadius: 6,
-                      }}
-                    >
-                      {meta.label}
-                    </span>
-                    <span className="project-arrow" style={{ fontSize: 18, paddingTop: 4 }}>↗</span>
-                  </div>
-                </li>
+                </div>
               </ScrollReveal>
             );
           })}
-        </ul>
+        </div>
 
-        {/* Call to action below projects */}
+        {/* CTA */}
         <ScrollReveal delay={200}>
-          <div
-            style={{
-              padding: "36px 0",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              flexWrap: "wrap", gap: 16,
-            }}
-          >
+          <div style={{
+            paddingBottom: 48,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            flexWrap: "wrap", gap: 16,
+            borderTop: "1px solid var(--border)", paddingTop: 32,
+          }}>
             <p style={{ fontSize: 14, color: "var(--muted)" }}>
               More in progress — always building.
             </p>
