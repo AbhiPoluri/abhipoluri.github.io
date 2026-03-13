@@ -104,10 +104,15 @@ function BrowserPreview({ previewUrl, title, projectId }: { previewUrl: string |
             height: "100%",
             background: placeholderGradients[projectId] ?? "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
+            gap: 8,
           }}>
-            <span style={{ fontSize: 28, opacity: 0.15 }}>⬡</span>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: "#fff", opacity: 0.3 }}>
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+            </svg>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#fff", opacity: 0.25, letterSpacing: "0.08em" }}>GitHub</span>
           </div>
         )}
       </div>
@@ -145,9 +150,7 @@ export default function Projects() {
         </ScrollReveal>
 
         {/* Card grid */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+        <div className="grid grid-cols-1 sm:grid-cols-2" style={{
           gap: 24,
           paddingTop: 40,
           paddingBottom: 48,
