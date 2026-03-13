@@ -28,7 +28,15 @@ const placeholderGradients: Record<number, string> = {
 
 function BrowserPreview({ previewUrl, title, projectId }: { previewUrl: string | null; title: string; projectId: number }) {
   const [iframeErr, setIframeErr] = useState(false);
+  const [visible, setVisible] = useState(false);
   const displayUrl = previewUrl ? previewUrl.replace("https://", "") : null;
+
+  // Only load iframe when card enters viewport
+  const refCallback = (node: HTMLDivElement | null) => {
+    if (!node) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold: 0.1 });
+    obs.observe(node);
+  };
 
   return (
     <div style={{
@@ -69,12 +77,13 @@ function BrowserPreview({ previewUrl, title, projectId }: { previewUrl: string |
       </div>
 
       {/* Preview area */}
-      <div style={{ height: 200, overflow: "hidden", position: "relative", background: "#0a0a0a" }}>
-        {previewUrl && !iframeErr ? (
+      <div ref={refCallback} style={{ height: 200, overflow: "hidden", position: "relative", background: "#0a0a0a" }}>
+        {previewUrl && !iframeErr && visible ? (
           <>
             <iframe
               src={previewUrl}
               title={title}
+              loading="lazy"
               style={{
                 width: "200%",
                 height: "200%",
@@ -155,20 +164,9 @@ export default function Projects() {
                     border: "1px solid var(--border)",
                     overflow: "hidden",
                     cursor: project.link ? "pointer" : "default",
-                    transition: "border-color .2s, transform .2s, box-shadow .2s",
                     background: "var(--bg)",
                   }}
                   onClick={() => { if (project.link) window.open(project.link, "_blank"); }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "var(--accent-warm)";
-                    e.currentTarget.style.transform = "translateY(-3px)";
-                    e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.18)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "var(--border)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
                 >
                   {/* Browser preview */}
                   <BrowserPreview previewUrl={project.previewUrl} title={project.title} projectId={project.id} />

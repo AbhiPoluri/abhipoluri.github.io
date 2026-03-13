@@ -101,15 +101,11 @@ body {
   cursor: auto;
 }
 
-/* Smooth theme transitions on all key properties */
-*, *::before, *::after {
-  transition-property: background-color, border-color, color, box-shadow;
-  transition-duration: 0.25s;
+/* Targeted theme transitions — only on elements that need color changes */
+a, button, .nav-link, .btn-accent, .tag, span[style*="color"], .project-card {
+  transition-property: background-color, border-color, color, box-shadow, opacity;
+  transition-duration: 0.2s;
   transition-timing-function: ease;
-}
-/* Don't let transition interfere with animations or transforms */
-.aurora-blob, .marquee-track {
-  transition: none !important;
 }
 
 
@@ -253,6 +249,16 @@ body {
   transition: none !important;
 }
 .marquee-track:hover { animation-play-state: paused; }
+
+/* ── Project card hover (CSS — no JS mutations) ─────── */
+.project-card {
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease !important;
+}
+.project-card:hover {
+  border-color: var(--accent-warm) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
 
 /* ── Project list hover ─────────────────────────────── */
 .project-row {
