@@ -52,12 +52,10 @@ export default function Cursor() {
       ring.current.y += (mouse.current.y - ring.current.y) * SPRING;
 
       if (dotRef.current) {
-        dotRef.current.style.left = `${mouse.current.x}px`;
-        dotRef.current.style.top  = `${mouse.current.y}px`;
+        dotRef.current.style.transform = `translate(${mouse.current.x}px, ${mouse.current.y}px)`;
       }
       if (ringRef.current) {
-        ringRef.current.style.left = `${ring.current.x}px`;
-        ringRef.current.style.top  = `${ring.current.y}px`;
+        ringRef.current.style.transform = `translate(${ring.current.x}px, ${ring.current.y}px)`;
       }
 
       rafId.current = requestAnimationFrame(animate);

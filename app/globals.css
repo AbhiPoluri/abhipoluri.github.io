@@ -158,36 +158,37 @@ a, button, .nav-link, .btn-accent, .tag, span[style*="color"], .project-card {
   z-index: 0;
   opacity: var(--aurora-opacity, 1);
   transition: opacity 0.4s ease !important;
+  contain: layout style paint;
 }
 
 /* Individual blobs */
 .aurora-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
+  filter: blur(60px);
   will-change: transform;
   transition: none !important;
 }
 .aurora-blob-1 {
-  width: 75vw; height: 75vh;
+  width: 60vw; height: 60vh;
   background: var(--blob-1-bg);
-  top: -30%; left: -20%;
+  top: -25%; left: -15%;
   animation: aurora1 22s ease-in-out infinite;
 }
 .aurora-blob-2 {
-  width: 65vw; height: 70vh;
+  width: 55vw; height: 55vh;
   background: var(--blob-2-bg);
-  top: 5%; right: -15%;
+  top: 5%; right: -10%;
   animation: aurora2 28s ease-in-out infinite;
 }
 .aurora-blob-3 {
-  width: 50vw; height: 55vh;
+  width: 42vw; height: 45vh;
   background: var(--blob-3-bg);
-  bottom: -15%; left: 30%;
+  bottom: -10%; left: 30%;
   animation: aurora3 32s ease-in-out infinite;
 }
 .aurora-blob-4 {
-  width: 40vw; height: 45vh;
+  width: 32vw; height: 36vh;
   background: var(--blob-4-bg);
   top: 20%; left: 40%;
   animation: aurora4 19s ease-in-out infinite;
@@ -401,3 +402,9 @@ a, button, .nav-link, .btn-accent, .tag, span[style*="color"], .project-card {
 /* ── Nav accent ────────────────────────────────────── */
 .nav-link:hover { color: var(--ink) !important; }
 .nav-link.active { color: var(--accent-warm) !important; }
+
+/* ── Off-screen paint savings ───────────────────────── */
+#work, #about, #skills, #contact {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 800px;
+}

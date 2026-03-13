@@ -1,67 +1,51 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 const CYCLE_WORDS = ["products.", "quickly.", "things that work."];
 const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&";
 
-function useScramble(target: string, trigger: boolean) {
-  const [display, setDisplay] = useState(target);
-  const frameRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+function TypeCycler() {
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const indexRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!trigger) return;
-    let iteration = 0;
-    const total = target.length * 3;
-
-    const tick = () => {
-      setDisplay(
-        target
+    const scramble = (target: string) => {
+      let iteration = 0;
+      const total = target.length * 3;
+      const tick = () => {
+        if (!spanRef.current) return;
+        spanRef.current.textContent = target
           .split("")
           .map((char, idx) => {
             if (char === " ") return " ";
             if (idx < iteration / 3) return char;
             return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
           })
-          .join("")
-      );
-      iteration++;
-      if (iteration <= total) {
-        frameRef.current = setTimeout(tick, 28);
-      }
+          .join("");
+        iteration++;
+        if (iteration <= total) timerRef.current = setTimeout(tick, 28);
+      };
+      tick();
     };
-    tick();
-    return () => { if (frameRef.current) clearTimeout(frameRef.current); };
-  }, [target, trigger]);
 
-  return display;
-}
-
-function TypeCycler() {
-  const [index, setIndex] = useState(0);
-  const [scramble, setScramble] = useState(false);
-  const word = CYCLE_WORDS[index];
-  const displayed = useScramble(word, scramble);
-
-  useEffect(() => {
+    const kickoff = setTimeout(() => scramble(CYCLE_WORDS[0]), 600);
     const interval = setInterval(() => {
-      setScramble(false);
-      setTimeout(() => {
-        setIndex((i) => (i + 1) % CYCLE_WORDS.length);
-        setScramble(true);
-      }, 80);
+      indexRef.current = (indexRef.current + 1) % CYCLE_WORDS.length;
+      scramble(CYCLE_WORDS[indexRef.current]);
     }, 2800);
-    return () => clearInterval(interval);
-  }, []);
 
-  // kick first scramble
-  useEffect(() => {
-    const t = setTimeout(() => setScramble(true), 600);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(kickoff);
+      clearInterval(interval);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
 
   return (
     <span
+      ref={spanRef}
       style={{
         color: "var(--accent-warm)",
         fontStyle: "italic",
@@ -71,7 +55,7 @@ function TypeCycler() {
         display: "inline-block",
       }}
     >
-      {displayed}
+      {CYCLE_WORDS[0]}
     </span>
   );
 }
