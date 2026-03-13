@@ -41,8 +41,8 @@ export const projects: Project[] = [
       "AI-powered project planning tool for engineering teams. Decomposes high-level goals into executable plans with Monte Carlo risk simulation, critical path analysis, and circular dependency detection.",
     tags: ["React", "TypeScript", "Zustand", "IndexedDB"],
     impact: "Supports Agile, Shape Up, Waterfall & Kanban",
-    link: "https://nexus-planner-landing.vercel.app",
-    previewUrl: "https://nexus-planner-landing.vercel.app",
+    link: "https://nexus-planner.vercel.app",
+    previewUrl: "https://nexus-planner.vercel.app",
     type: "tech",
   },
   {
