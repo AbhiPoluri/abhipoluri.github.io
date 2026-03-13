@@ -24,17 +24,6 @@ export const projects: Project[] = [
     type: "tech",
   },
   {
-    id: 2,
-    title: "Pocket Log",
-    description:
-      "Family expense and receipt tracker. Snap a receipt, Gemini 2.0 Flash parses it instantly into line items. Multi-user households, category breakdowns, and monthly summaries in a clean mobile-first PWA.",
-    tags: ["Next.js", "Supabase", "Gemini 2.0", "TypeScript"],
-    impact: "AI receipt parsing · family expense tracking",
-    link: "https://github.com/AbhiPoluri/pocket-log",
-    previewUrl: "https://pocket-log-seven.vercel.app",
-    type: "tech",
-  },
-  {
     id: 3,
     title: "NotesgGraph",
     description:
@@ -52,8 +41,8 @@ export const projects: Project[] = [
       "AI-powered project planning tool for engineering teams. Decomposes high-level goals into executable plans with Monte Carlo risk simulation, critical path analysis, and circular dependency detection.",
     tags: ["React", "TypeScript", "Zustand", "IndexedDB"],
     impact: "Supports Agile, Shape Up, Waterfall & Kanban",
-    link: "https://github.com/AbhiPoluri",
-    previewUrl: null,
+    link: "https://nexus-planner-landing.vercel.app",
+    previewUrl: "https://nexus-planner-landing.vercel.app",
     type: "tech",
   },
   {
@@ -63,7 +52,7 @@ export const projects: Project[] = [
       "Production-grade AI development framework with 213 skills, 37 specialist agents, and 95 commands covering the full software development lifecycle — from architecture and testing to deployment.",
     tags: ["AI/ML", "Prompt Engineering", "Framework Design", "DevOps"],
     impact: "213 skills · 37 agents · 95 commands",
-    link: "https://github.com/AbhiPoluri",
+    link: "https://github.com/AbhiPoluri/ClaudeInOne",
     previewUrl: null,
     type: "framework",
   },
