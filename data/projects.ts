@@ -50,6 +50,18 @@ export const projects: Project[] = [
     type: "tech",
   },
   {
+    id: 6,
+    title: "Ollama Router",
+    description:
+      "Lightweight FastAPI proxy that auto-routes AI requests to fast or smart Ollama models based on task complexity. Drop-in compatible with OpenAI API, Open WebUI, and OpenCode — with a live routing dashboard.",
+    tags: ["Python", "FastAPI", "Ollama", "Local AI"],
+    impact: "Smart routing · live dashboard · OpenAI-compatible",
+    link: "https://github.com/AbhiPoluri/Ollama-router",
+    previewUrl: null,
+    screenshot: null,
+    type: "tech",
+  },
+  {
     id: 5,
     title: "ClaudeInOne",
     description:
