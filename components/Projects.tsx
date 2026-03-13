@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import ScrollReveal from "./ScrollReveal";
 import { projects } from "@/data/projects";
 import { Zap, Lightbulb } from "./Icons";
@@ -27,9 +28,20 @@ const previewThemes: Record<number, { bg: string; accent: string; dots: string }
 };
 
 function BrowserPreview({ previewUrl, title, projectId, screenshot }: { previewUrl: string | null; title: string; projectId: number; screenshot: string | null }) {
+  const [visible, setVisible] = useState(false);
+  const [iframeErr, setIframeErr] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const displayUrl = previewUrl ? previewUrl.replace("https://", "") : title.toLowerCase().replace(/\s+/g, "-");
   const theme = previewThemes[projectId] ?? { bg: "linear-gradient(135deg, #0a0a0a 0%, #141428 100%)", accent: "#888", dots: "rgba(255,255,255,0.06)" };
   const initial = title[0].toUpperCase();
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || !previewUrl) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold: 0.1 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [previewUrl]);
 
   return (
     <div style={{
@@ -70,8 +82,20 @@ function BrowserPreview({ previewUrl, title, projectId, screenshot }: { previewU
       </div>
 
       {/* Preview */}
-      <div style={{ height: 200, overflow: "hidden", position: "relative", background: theme.bg }}>
-        {screenshot ? (
+      <div ref={wrapRef} style={{ height: 200, overflow: "hidden", position: "relative", background: theme.bg }}>
+        {previewUrl && visible && !iframeErr ? (
+          <>
+            <iframe
+              src={previewUrl}
+              title={title}
+              loading="lazy"
+              style={{ width: "200%", height: "200%", transform: "scale(0.5)", transformOrigin: "top left", border: "none", pointerEvents: "none" }}
+              onError={() => setIframeErr(true)}
+              sandbox="allow-scripts allow-same-origin"
+            />
+            <div style={{ position: "absolute", inset: 0 }} />
+          </>
+        ) : screenshot ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={screenshot}
