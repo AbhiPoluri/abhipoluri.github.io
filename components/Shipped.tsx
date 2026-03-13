@@ -38,7 +38,7 @@ function ProductCard({ product }: { product: (typeof products)[0] }) {
       }}
     >
       {/* Preview area */}
-      <div style={{ position: "relative", height: 220, background: "#0a0a0a", overflow: "hidden" }}>
+      <div style={{ position: "relative", aspectRatio: "1 / 1", background: "#0a0a0a", overflow: "hidden" }}>
         {product.videoSrc ? (
           <video
             ref={videoRef}
@@ -50,10 +50,9 @@ function ProductCard({ product }: { product: (typeof products)[0] }) {
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "cover",
-              objectPosition: "center",
+              objectFit: "contain",
               display: "block",
-              opacity: hovered ? 1 : 0.6,
+              opacity: hovered ? 1 : 0.85,
               transition: "opacity .3s",
             }}
           />
@@ -229,11 +228,8 @@ export default function Shipped() {
           </div>
         </ScrollReveal>
 
-        {/* Card grid */}
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2"
-          style={{ gap: 24, paddingTop: 40, paddingBottom: 64 }}
-        >
+        {/* Cards */}
+        <div style={{ paddingTop: 40, paddingBottom: 64, display: "flex", flexDirection: "column", gap: 24, maxWidth: 540, margin: "0 auto" }}>
           {products.map((product, i) => (
             <ScrollReveal key={product.id} delay={i * 80}>
               <ProductCard product={product} />
