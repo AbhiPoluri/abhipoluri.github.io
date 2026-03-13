@@ -102,7 +102,7 @@ body {
 }
 
 /* Targeted theme transitions — only on elements that need color changes */
-a, button, .nav-link, .btn-accent, .tag, span[style*="color"], .project-card {
+a, button, .nav-link, .btn-accent, .tag, .project-card {
   transition-property: background-color, border-color, color, box-shadow, opacity;
   transition-duration: 0.2s;
   transition-timing-function: ease;
@@ -113,7 +113,6 @@ a, button, .nav-link, .btn-accent, .tag, span[style*="color"], .project-card {
 @keyframes fadeUp  { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
 @keyframes scaleIn { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
-@keyframes marquee { from { transform:translateX(0); } to { transform:translateX(-50%); } }
 @keyframes pulse-warm {
   0%, 100% { box-shadow: 0 0 0 0 var(--accent-warm-glow); }
   50%       { box-shadow: 0 0 0 8px rgba(255,107,53,0); }
@@ -242,14 +241,6 @@ a, button, .nav-link, .btn-accent, .tag, span[style*="color"], .project-card {
   transform: none;
 }
 
-/* ── Marquee ────────────────────────────────────────── */
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marquee 28s linear infinite;
-  transition: none !important;
-}
-.marquee-track:hover { animation-play-state: paused; }
 
 /* ── Project card hover (CSS — no JS mutations) ─────── */
 .project-card {
@@ -346,6 +337,7 @@ a, button, .nav-link, .btn-accent, .tag, span[style*="color"], .project-card {
   overflow: hidden;
   pointer-events: none;
   user-select: none;
+  contain: layout style paint;
 }
 
 /* ── Theme toggle button ────────────────────────────── */
@@ -404,7 +396,18 @@ a, button, .nav-link, .btn-accent, .tag, span[style*="color"], .project-card {
 .nav-link.active { color: var(--accent-warm) !important; }
 
 /* ── Off-screen paint savings ───────────────────────── */
-#work, #about, #skills, #contact {
-  content-visibility: auto;
-  contain-intrinsic-size: 0 800px;
+#work  { content-visibility: auto; contain-intrinsic-size: 0 1200px; }
+#about { content-visibility: auto; contain-intrinsic-size: 0 1100px; }
+#skills { content-visibility: auto; contain-intrinsic-size: 0 900px; }
+#contact { content-visibility: auto; contain-intrinsic-size: 0 700px; }
+
+/* ── Respect reduced-motion ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob-1, .aurora-blob-2, .aurora-blob-3, .aurora-blob-4,
+  .sr, .sr-l, .sr-r, .live-dot, .a-fade-up, .a-fade-in, .a-scale-in {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

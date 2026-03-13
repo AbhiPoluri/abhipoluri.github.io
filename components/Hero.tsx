@@ -25,7 +25,7 @@ function TypeCycler() {
           })
           .join("");
         iteration++;
-        if (iteration <= total) timerRef.current = setTimeout(tick, 28);
+        if (iteration <= total) timerRef.current = setTimeout(tick, 42);
       };
       tick();
     };

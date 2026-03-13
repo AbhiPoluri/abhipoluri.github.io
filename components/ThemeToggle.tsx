@@ -49,8 +49,8 @@ export default function ThemeToggle() {
     localStorage.setItem("theme", val);
   };
 
-  // Prevent hydration mismatch — render nothing until mounted
-  if (!mounted) return <div style={{ width: 34, height: 34 }} />;
+  // Prevent hydration mismatch — render invisible placeholder to avoid CLS
+  if (!mounted) return <div className="theme-toggle" style={{ opacity: 0, pointerEvents: "none" }} />;
 
   return (
     <button
