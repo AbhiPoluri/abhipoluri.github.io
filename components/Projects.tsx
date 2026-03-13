@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import ScrollReveal from "./ScrollReveal";
 import { projects } from "@/data/projects";
 import { Zap, Lightbulb } from "./Icons";
@@ -20,23 +19,17 @@ const impactIcons: Record<string, IconComp> = {
   framework: Lightbulb,
 };
 
-// Gradient placeholders for projects without a live URL
-const placeholderGradients: Record<number, string> = {
-  4: "linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0c4a6e 100%)",
-  5: "linear-gradient(135deg, #0f0a1e 0%, #1e1040 40%, #2d1b69 100%)",
+const previewThemes: Record<number, { bg: string; accent: string; dots: string }> = {
+  1: { bg: "linear-gradient(135deg, #0a0a14 0%, #0f1a2e 60%, #0a1628 100%)", accent: "#60a5fa", dots: "rgba(96,165,250,0.12)" },
+  3: { bg: "linear-gradient(135deg, #060f0a 0%, #0a1f12 60%, #081a10 100%)", accent: "#4ade80", dots: "rgba(74,222,128,0.12)" },
+  4: { bg: "linear-gradient(135deg, #0a0a0a 0%, #0f1a0a 60%, #0c1a08 100%)", accent: "#a3f050", dots: "rgba(163,240,80,0.12)" },
+  5: { bg: "linear-gradient(135deg, #0f0a1e 0%, #1a0f2e 60%, #140a24 100%)", accent: "#a78bfa", dots: "rgba(167,139,250,0.12)" },
 };
 
 function BrowserPreview({ previewUrl, title, projectId }: { previewUrl: string | null; title: string; projectId: number }) {
-  const [iframeErr, setIframeErr] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const displayUrl = previewUrl ? previewUrl.replace("https://", "") : null;
-
-  // Only load iframe when card enters viewport
-  const refCallback = (node: HTMLDivElement | null) => {
-    if (!node) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold: 0.1 });
-    obs.observe(node);
-  };
+  const displayUrl = previewUrl ? previewUrl.replace("https://", "") : title.toLowerCase().replace(/\s+/g, "-");
+  const theme = previewThemes[projectId] ?? { bg: "linear-gradient(135deg, #0a0a0a 0%, #141428 100%)", accent: "#888", dots: "rgba(255,255,255,0.06)" };
+  const initial = title[0].toUpperCase();
 
   return (
     <div style={{
@@ -72,49 +65,41 @@ function BrowserPreview({ previewUrl, title, projectId }: { previewUrl: string |
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
         }}>
-          {displayUrl ?? title.toLowerCase().replace(/\s+/g, "-")}
+          {displayUrl}
         </div>
       </div>
 
-      {/* Preview area */}
-      <div ref={refCallback} style={{ height: 200, overflow: "hidden", position: "relative", background: "#0a0a0a" }}>
-        {previewUrl && !iframeErr && visible ? (
-          <>
-            <iframe
-              src={previewUrl}
-              title={title}
-              loading="lazy"
-              style={{
-                width: "200%",
-                height: "200%",
-                transform: "scale(0.5)",
-                transformOrigin: "top left",
-                border: "none",
-                pointerEvents: "none",
-              }}
-              onError={() => setIframeErr(true)}
-              sandbox="allow-scripts allow-same-origin"
-            />
-            {/* Click overlay — prevent iframe interaction, let card handle click */}
-            <div style={{ position: "absolute", inset: 0 }} />
-          </>
-        ) : (
+      {/* Static preview — no iframes */}
+      <div style={{ height: 200, overflow: "hidden", position: "relative", background: theme.bg }}>
+        {/* Dot grid pattern */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `radial-gradient(circle, ${theme.dots} 1px, transparent 1px)`,
+          backgroundSize: "18px 18px",
+        }} />
+        {/* Glow */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: `radial-gradient(ellipse at 50% 30%, ${theme.dots.replace("0.12", "0.25")} 0%, transparent 70%)`,
+        }} />
+        {/* Center content */}
+        <div style={{
+          position: "absolute", inset: 0,
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
+        }}>
           <div style={{
-            width: "100%",
-            height: "100%",
-            background: placeholderGradients[projectId] ?? "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
+            width: 44, height: 44, borderRadius: 12,
+            background: `${theme.accent}22`,
+            border: `1.5px solid ${theme.accent}44`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 18, fontWeight: 800, color: theme.accent,
           }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: "#fff", opacity: 0.3 }}>
-              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
-            </svg>
-            <span style={{ fontSize: 11, fontWeight: 600, color: "#fff", opacity: 0.25, letterSpacing: "0.08em" }}>GitHub</span>
+            {initial}
           </div>
-        )}
+          <span style={{ fontSize: 11, fontWeight: 600, color: theme.accent, opacity: 0.6, letterSpacing: "0.06em" }}>
+            {displayUrl}
+          </span>
+        </div>
       </div>
     </div>
   );
