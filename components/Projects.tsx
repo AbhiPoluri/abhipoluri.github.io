@@ -26,7 +26,7 @@ const previewThemes: Record<number, { bg: string; accent: string; dots: string }
   5: { bg: "linear-gradient(135deg, #0f0a1e 0%, #1a0f2e 60%, #140a24 100%)", accent: "#a78bfa", dots: "rgba(167,139,250,0.12)" },
 };
 
-function BrowserPreview({ previewUrl, title, projectId }: { previewUrl: string | null; title: string; projectId: number }) {
+function BrowserPreview({ previewUrl, title, projectId, screenshot }: { previewUrl: string | null; title: string; projectId: number; screenshot: string | null }) {
   const displayUrl = previewUrl ? previewUrl.replace("https://", "") : title.toLowerCase().replace(/\s+/g, "-");
   const theme = previewThemes[projectId] ?? { bg: "linear-gradient(135deg, #0a0a0a 0%, #141428 100%)", accent: "#888", dots: "rgba(255,255,255,0.06)" };
   const initial = title[0].toUpperCase();
@@ -69,37 +69,28 @@ function BrowserPreview({ previewUrl, title, projectId }: { previewUrl: string |
         </div>
       </div>
 
-      {/* Static preview — no iframes */}
+      {/* Preview */}
       <div style={{ height: 200, overflow: "hidden", position: "relative", background: theme.bg }}>
-        {/* Dot grid pattern */}
-        <div style={{
-          position: "absolute", inset: 0,
-          backgroundImage: `radial-gradient(circle, ${theme.dots} 1px, transparent 1px)`,
-          backgroundSize: "18px 18px",
-        }} />
-        {/* Glow */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: `radial-gradient(ellipse at 50% 30%, ${theme.dots.replace("0.12", "0.25")} 0%, transparent 70%)`,
-        }} />
-        {/* Center content */}
-        <div style={{
-          position: "absolute", inset: 0,
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
-        }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: `${theme.accent}22`,
-            border: `1.5px solid ${theme.accent}44`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 18, fontWeight: 800, color: theme.accent,
-          }}>
-            {initial}
-          </div>
-          <span style={{ fontSize: 11, fontWeight: 600, color: theme.accent, opacity: 0.6, letterSpacing: "0.06em" }}>
-            {displayUrl}
-          </span>
-        </div>
+        {screenshot ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={screenshot}
+            alt={`${title} preview`}
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }}
+            loading="lazy"
+          />
+        ) : (
+          <>
+            <div style={{ position: "absolute", inset: 0, backgroundImage: `radial-gradient(circle, ${theme.dots} 1px, transparent 1px)`, backgroundSize: "18px 18px" }} />
+            <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 50% 30%, ${theme.dots.replace("0.12", "0.25")} 0%, transparent 70%)` }} />
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: `${theme.accent}22`, border: `1.5px solid ${theme.accent}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, color: theme.accent }}>
+                {initial}
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 600, color: theme.accent, opacity: 0.6, letterSpacing: "0.06em" }}>{displayUrl}</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -157,7 +148,7 @@ export default function Projects() {
                   onClick={() => { if (project.link) window.open(project.link, "_blank"); }}
                 >
                   {/* Browser preview */}
-                  <BrowserPreview previewUrl={project.previewUrl} title={project.title} projectId={project.id} />
+                  <BrowserPreview previewUrl={project.previewUrl} title={project.title} projectId={project.id} screenshot={project.screenshot ?? null} />
 
                   {/* Info */}
                   <div style={{ padding: "20px 22px 22px" }}>

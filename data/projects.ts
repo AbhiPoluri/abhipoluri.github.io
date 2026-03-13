@@ -8,6 +8,7 @@ export interface Project {
   impact: string;
   link: string | null;
   previewUrl: string | null;
+  screenshot: string | null;
   type: ProjectType;
 }
 
@@ -21,6 +22,7 @@ export const projects: Project[] = [
     impact: "Auto memory · fully local · semantic recall",
     link: "https://abhimem.vercel.app",
     previewUrl: "https://abhimem.vercel.app",
+    screenshot: "/previews/abhimem.jpg",
     type: "tech",
   },
   {
@@ -32,6 +34,7 @@ export const projects: Project[] = [
     impact: "Local-first · semantic knowledge graph",
     link: "https://notesgraph.vercel.app",
     previewUrl: "https://notesgraph.vercel.app",
+    screenshot: "/previews/notesgraph.jpg",
     type: "tech",
   },
   {
@@ -43,6 +46,7 @@ export const projects: Project[] = [
     impact: "Supports Agile, Shape Up, Waterfall & Kanban",
     link: "https://nexus-planner-lemon.vercel.app",
     previewUrl: "https://nexus-planner-lemon.vercel.app",
+    screenshot: "/previews/nexus-planner.jpg",
     type: "tech",
   },
   {
@@ -54,6 +58,7 @@ export const projects: Project[] = [
     impact: "213 skills · 37 agents · 95 commands",
     link: "https://claudeinone.vercel.app",
     previewUrl: null,
+    screenshot: "/previews/claudeinone.jpg",
     type: "framework",
   },
 ];

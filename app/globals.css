@@ -173,21 +173,25 @@ a, button, .nav-link, .btn-accent, .tag, span[style*="color"], .project-card {
   width: 60vw; height: 60vh;
   background: var(--blob-1-bg);
   top: -25%; left: -15%;
+  animation: aurora1 22s ease-in-out infinite;
 }
 .aurora-blob-2 {
   width: 55vw; height: 55vh;
   background: var(--blob-2-bg);
   top: 5%; right: -10%;
+  animation: aurora2 28s ease-in-out infinite;
 }
 .aurora-blob-3 {
   width: 42vw; height: 45vh;
   background: var(--blob-3-bg);
   bottom: -10%; left: 30%;
+  animation: aurora3 32s ease-in-out infinite;
 }
 .aurora-blob-4 {
   width: 32vw; height: 36vh;
   background: var(--blob-4-bg);
   top: 20%; left: 40%;
+  animation: aurora4 19s ease-in-out infinite;
 }
 
 /* Noise grain overlay */
