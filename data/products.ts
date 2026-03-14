@@ -39,7 +39,7 @@ export const products: Product[] = [
     description:
       "A lightweight local inference router that intelligently dispatches prompts to different Ollama models based on task type — code to deepseek-coder, reasoning to llama3, quick answers to phi3. Zero cloud, full control.",
     tags: ["Node.js", "Ollama", "AI", "Local LLM"],
-    link: null,
+    link: "https://github.com/AbhiPoluri/Ollama-router",
     videoSrc: "/videos/ollama-router-ad.mp4",
     accent: "#f5a623",
   },
