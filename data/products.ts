@@ -32,4 +32,15 @@ export const products: Product[] = [
     videoSrc: "/videos/strivesync-ad.mp4",
     accent: "#488e55",
   },
+  {
+    id: 3,
+    name: "Ollama Router",
+    tagline: "Route prompts to the right local model",
+    description:
+      "A lightweight local inference router that intelligently dispatches prompts to different Ollama models based on task type — code to deepseek-coder, reasoning to llama3, quick answers to phi3. Zero cloud, full control.",
+    tags: ["Node.js", "Ollama", "AI", "Local LLM"],
+    link: null,
+    videoSrc: "/videos/ollama-router-ad.mp4",
+    accent: "#f5a623",
+  },
 ];
