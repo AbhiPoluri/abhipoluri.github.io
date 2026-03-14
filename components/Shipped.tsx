@@ -1,18 +1,29 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ScrollReveal from "./ScrollReveal";
 import { products } from "@/data/products";
 
 function ProductCard({ product }: { product: (typeof products)[0] }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hovered, setHovered] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    const noHover = window.matchMedia("(hover: none)").matches;
+    setIsTouchDevice(noHover);
+    if (noHover) videoRef.current?.play();
+  }, []);
+
+  const active = hovered || isTouchDevice;
 
   const handleEnter = () => {
+    if (isTouchDevice) return;
     setHovered(true);
     videoRef.current?.play();
   };
   const handleLeave = () => {
+    if (isTouchDevice) return;
     setHovered(false);
     if (videoRef.current) {
       videoRef.current.pause();
@@ -33,8 +44,8 @@ function ProductCard({ product }: { product: (typeof products)[0] }) {
         cursor: product.link ? "pointer" : "default",
         background: "var(--bg)",
         transition: "border-color .2s, box-shadow .2s",
-        boxShadow: hovered ? `0 0 0 1px ${product.accent}55, 0 8px 32px ${product.accent}18` : "none",
-        borderColor: hovered ? product.accent + "55" : "var(--border)",
+        boxShadow: active ? `0 0 0 1px ${product.accent}55, 0 8px 32px ${product.accent}18` : "none",
+        borderColor: active ? product.accent + "55" : "var(--border)",
       }}
     >
       {/* Preview area */}
@@ -52,7 +63,7 @@ function ProductCard({ product }: { product: (typeof products)[0] }) {
               height: "100%",
               objectFit: "contain",
               display: "block",
-              opacity: hovered ? 1 : 0.85,
+              opacity: active ? 1 : 0.85,
               transition: "opacity .3s",
             }}
           />
@@ -90,7 +101,7 @@ function ProductCard({ product }: { product: (typeof products)[0] }) {
         )}
 
         {/* Hover hint */}
-        {product.videoSrc && !hovered && (
+        {product.videoSrc && !active && !isTouchDevice && (
           <div style={{
             position: "absolute",
             bottom: 10,
