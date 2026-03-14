@@ -229,7 +229,7 @@ export default function Shipped() {
         </ScrollReveal>
 
         {/* Cards */}
-        <div style={{ paddingTop: 40, paddingBottom: 64, display: "flex", flexDirection: "column", gap: 24, maxWidth: 540, margin: "0 auto" }}>
+        <div style={{ paddingTop: 40, paddingBottom: 64, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
           {products.map((product, i) => (
             <ScrollReveal key={product.id} delay={i * 80}>
               <ProductCard product={product} />
