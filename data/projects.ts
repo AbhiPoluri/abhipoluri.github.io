@@ -49,7 +49,7 @@ export const projects: Project[] = [
     screenshot: "/previews/nexus-planner.jpg",
     type: "tech",
   },
-{
+  {
     id: 5,
     title: "ClaudeInOne",
     description:
@@ -60,5 +60,29 @@ export const projects: Project[] = [
     previewUrl: null,
     screenshot: "/previews/claudeinone.jpg",
     type: "framework",
+  },
+  {
+    id: 6,
+    title: "sql-r1",
+    description:
+      "Distilled DeepSeek-V3.1 and DeepSeek-V4-Pro into Qwen2.5-Coder-7B on Apple Silicon to learn how SFT and DPO actually behave at small scale. Eight training runs, two teachers, deterministic execution-match eval on the BIRD text-to-SQL benchmark.",
+    tags: ["MLX-LM", "LoRA", "DPO", "Distillation", "PyTorch"],
+    impact: "47.5% → 55% pass@1 on BIRD · $5.83 total spend",
+    link: "https://github.com/AbhiPoluri/sql-r1",
+    previewUrl: null,
+    screenshot: "/previews/sql-r1.jpg",
+    type: "tech",
+  },
+  {
+    id: 7,
+    title: "Boardroom",
+    description:
+      "AI agent orchestration platform for spawning, monitoring, and coordinating fleets of Claude Code agents. REST API plus an MCP server exposing nine tools for agent lifecycle, token usage, and orchestrator messaging from any MCP-compatible client.",
+    tags: ["TypeScript", "Next.js", "MCP", "Claude Code", "Orchestration"],
+    impact: "Multi-agent control plane · live dashboard · MCP-native",
+    link: "https://boardroomapp.vercel.app",
+    previewUrl: "https://boardroomapp.vercel.app",
+    screenshot: "/previews/boardroom.jpg",
+    type: "tech",
   },
 ];
