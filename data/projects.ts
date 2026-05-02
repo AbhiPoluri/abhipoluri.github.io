@@ -81,7 +81,7 @@ export const projects: Project[] = [
     tags: ["TypeScript", "Next.js", "MCP", "Claude Code", "Orchestration"],
     impact: "Multi-agent control plane · live dashboard · MCP-native",
     link: "https://boardroomapp.vercel.app",
-    previewUrl: "https://boardroomapp.vercel.app",
+    previewUrl: null,
     screenshot: "/previews/boardroom.jpg",
     type: "tech",
   },
