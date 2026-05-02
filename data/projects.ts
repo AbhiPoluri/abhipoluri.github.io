@@ -63,12 +63,12 @@ export const projects: Project[] = [
   },
   {
     id: 6,
-    title: "sql-r1",
+    title: "Distilling DeepSeek into Qwen-7B",
     description:
-      "Distilled DeepSeek-V3.1 and DeepSeek-V4-Pro into Qwen2.5-Coder-7B on Apple Silicon to learn how SFT and DPO actually behave at small scale. Eight training runs, two teachers, deterministic execution-match eval on the BIRD text-to-SQL benchmark.",
-    tags: ["MLX-LM", "LoRA", "DPO", "Distillation", "PyTorch"],
+      "A weekend distillation experiment to learn how SFT and DPO actually behave at small scale. Distilled DeepSeek-V3.1 and DeepSeek-V4-Pro into Qwen2.5-Coder-7B on Apple Silicon, scored on the BIRD text-to-SQL benchmark with deterministic execution match. Full writeup on LinkedIn; code on GitHub.",
+    tags: ["MLX-LM", "LoRA", "DPO", "Distillation", "Apple Silicon"],
     impact: "47.5% → 55% pass@1 on BIRD · $5.83 total spend",
-    link: "https://github.com/AbhiPoluri/sql-r1",
+    link: "https://www.linkedin.com/pulse/distilling-deepseek-7b-model-apple-silicon-abhiram-poluri-gv2uc/",
     previewUrl: null,
     screenshot: "/previews/sql-r1.jpg",
     type: "tech",
