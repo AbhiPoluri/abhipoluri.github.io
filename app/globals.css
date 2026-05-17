@@ -109,6 +109,17 @@ a, button, .nav-link, .btn-accent, .tag, .project-card {
 }
 
 
+/* Hero 2-column grid collapses to single column on small screens */
+@media (max-width: 900px) {
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .hero-clone-col {
+    height: 480px !important;
+  }
+}
+
 /* ── Keyframes ─────────────────────────────────────── */
 @keyframes fadeUp  { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }

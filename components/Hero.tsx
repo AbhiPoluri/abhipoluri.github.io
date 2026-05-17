@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import CloneWidget from "./talk/CloneWidget";
 
-const CYCLE_WORDS = ["products.", "quickly.", "things that work."];
+const CYCLE_WORDS = ["products.", "quickly.", "real things."];
 const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&";
 
 function TypeCycler() {
@@ -83,8 +84,23 @@ export default function Hero() {
         <div className="aurora-noise" />
       </div>
 
-      {/* Hero content */}
-      <div style={{ maxWidth: 1080, margin: "0 auto", width: "100%", padding: "0 32px", position: "relative", zIndex: 2 }}>
+      {/* Hero content — 2-col grid: copy left, clone widget right */}
+      <div
+        style={{
+          maxWidth: 1180,
+          margin: "0 auto",
+          width: "100%",
+          padding: "0 32px",
+          position: "relative",
+          zIndex: 2,
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr) minmax(0, 420px)",
+          gap: 56,
+          alignItems: "center",
+        }}
+        className="hero-grid"
+      >
+        <div>
 
         {/* Eyebrow with live indicator */}
         <div
@@ -116,16 +132,18 @@ export default function Hero() {
           <span>Vancouver, BC</span>
         </div>
 
-        {/* Headline */}
+        {/* Headline — capped a touch lower so the cycler stays on one line in
+            the narrowed 2-col hero layout */}
         <h1
           className="a-fade-up d2"
           style={{
-            fontSize: "clamp(52px, 8vw, 96px)",
+            fontSize: "clamp(48px, 6.5vw, 80px)",
             fontWeight: 800,
             letterSpacing: "-0.03em",
             lineHeight: 0.97,
             color: "var(--hero-text)",
             marginBottom: 36,
+            wordBreak: "keep-all",
           }}
         >
           <span style={{ display: "block" }}>I ship</span>
@@ -186,6 +204,45 @@ export default function Hero() {
               Resume ↗
             </a>
           </div>
+        </div>
+
+        </div>{/* /left column */}
+
+        {/* RIGHT — interactive clone widget */}
+        <div
+          className="a-fade-up d4 hero-clone-col"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "min(560px, 70svh)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: ".12em",
+              textTransform: "uppercase",
+              color: "var(--accent-warm)",
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "var(--accent-warm)",
+                boxShadow: "0 0 8px var(--accent-warm)",
+              }}
+              className="live-dot"
+            />
+            Talk to my clone — live
+          </div>
+          <CloneWidget />
         </div>
       </div>
 
