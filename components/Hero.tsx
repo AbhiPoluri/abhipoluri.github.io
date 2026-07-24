@@ -931,7 +931,7 @@ export default function Hero() {
     window.dispatchEvent(
       new CustomEvent("portfolio:load-project", { detail: { id: projectId } }),
     );
-    document.querySelector("#work")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.querySelector("#project-reel")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   let letterIndex = 0;

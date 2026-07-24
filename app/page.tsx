@@ -1,6 +1,7 @@
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Projects from "@/components/Projects";
+import ProjectDeepDives from "@/components/ProjectDeepDives";
 import About from "@/components/About";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
@@ -16,6 +17,7 @@ export default function Home() {
       <Nav />
       <main className="site-main">
         <Hero />
+        <ProjectDeepDives />
         <Projects />
         <About />
         <Contact />
