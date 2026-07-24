@@ -1,24 +1,23 @@
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
-import InfoStrip from "@/components/Marquee";
 import Projects from "@/components/Projects";
-import Shipped from "@/components/Shipped";
 import About from "@/components/About";
-import Skills from "@/components/Skills";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import PlayLayer from "@/components/PlayLayer";
+import DeskPlayground from "@/components/DeskPlayground";
 
 export default function Home() {
   return (
     <>
+      <a className="skip-link" href="#work">Skip to selected work</a>
+      <PlayLayer />
+      <DeskPlayground />
       <Nav />
-      <main>
+      <main className="site-main">
         <Hero />
-        <InfoStrip />
         <Projects />
-        <Shipped />
         <About />
-        <Skills />
         <Contact />
       </main>
       <Footer />

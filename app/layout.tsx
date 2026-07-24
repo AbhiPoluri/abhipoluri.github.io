@@ -1,23 +1,29 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Geist, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+const sans = Geist({
+  variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
+  display: "swap",
+});
+
+const display = Instrument_Serif({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Abhi Poluri — Business & Technology",
+  title: "Abhi Poluri — Product, Strategy & Technology",
   description:
-    "Student at Simon Fraser University who builds. AI dashboards, planning tools, and real side businesses. Available for internships.",
-  keywords: ["Abhi Poluri", "Simon Fraser University", "SFU", "business student", "software developer", "portfolio"],
+    "Abhi Poluri is an SFU business student and product builder working across strategy, software, and AI.",
+  keywords: ["Abhi Poluri", "product builder", "Simon Fraser University", "SFU", "strategy", "AI"],
   openGraph: {
-    title: "Abhi Poluri — Business & Technology",
+    title: "Abhi Poluri — Product, Strategy & Technology",
     description:
-      "Student at Simon Fraser University who builds. AI dashboards, planning tools, and real side businesses.",
+      "Business student and hands-on builder working where product strategy, software, and AI meet.",
     type: "website",
   },
 };
@@ -26,16 +32,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <head>
-        {/* Prevent flash of wrong theme */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var t=localStorage.getItem('theme');if(!t)t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();`,
-          }}
-        />
-      </head>
-      <body className={`${jakarta.variable} antialiased`}>
+    <html lang="en">
+      <body className={`${sans.variable} ${display.variable}`}>
         {children}
       </body>
     </html>

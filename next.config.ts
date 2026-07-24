@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
   trailingSlash: true, // generates /about/index.html instead of /about.html
   basePath,
   assetPrefix: basePath ? `${basePath}/` : undefined,
+  turbopack: {
+    root: process.cwd(),
+  },
   images: {
     unoptimized: true, // required for static export (no Next.js image server)
   },

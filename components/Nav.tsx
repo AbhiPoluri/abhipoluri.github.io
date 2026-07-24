@@ -1,141 +1,106 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import ThemeToggle from "./ThemeToggle";
-
-const links = [
-  { label: "Work",     href: "#work" },
-  { label: "Shipped",  href: "#shipped" },
-  { label: "About",    href: "#about" },
-  { label: "Skills",   href: "#skills" },
-  { label: "Contact",  href: "#contact" },
-];
+import { useEffect, useRef, useState } from "react";
 
 export default function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const resumeStart = useRef<{ x: number; y: number } | null>(null);
+  const resumeDistance = useRef(0);
 
   useEffect(() => {
-    let ticking = false;
-    const fn = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          setScrolled(window.scrollY > 10);
-          ticking = false;
-        });
-        ticking = true;
-      }
+    const update = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(total > 0 ? window.scrollY / total : 0);
     };
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
   }, []);
 
-  const go = (href: string) => {
-    setOpen(false);
-    document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+  const tearResume = (event: React.PointerEvent<HTMLButtonElement>) => {
+    resumeStart.current = { x: event.clientX, y: event.clientY };
+    resumeDistance.current = 0;
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const pullResume = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!resumeStart.current) return;
+    const x = event.clientX - resumeStart.current.x;
+    const y = event.clientY - resumeStart.current.y;
+    resumeDistance.current = Math.hypot(x, y);
+    event.currentTarget.style.transform = `translate(${x * 0.34}px, ${y * 0.34}px) rotate(${x * 0.025}deg)`;
+    event.currentTarget.style.setProperty("--tear-progress", String(Math.min(1, resumeDistance.current / 90)));
+  };
+
+  const releaseResume = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!resumeStart.current) return;
+    const torn = resumeDistance.current > 72;
+    resumeStart.current = null;
+    event.currentTarget.style.transform = "";
+    event.currentTarget.style.removeProperty("--tear-progress");
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    if (torn) {
+      const download = document.createElement("a");
+      download.href = "/resume.pdf";
+      download.download = "Abhi-Poluri-Resume.pdf";
+      download.click();
+      window.dispatchEvent(new CustomEvent("desk:stamp", {
+        detail: { label: "TEAR HERE", x: event.clientX, y: event.clientY },
+      }));
+      window.dispatchEvent(new CustomEvent("desk:sound", { detail: { kind: "paper" } }));
+    }
   };
 
   return (
-    <header
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b"
-      style={
-        scrolled
-          ? { background: "var(--bg)", borderColor: "var(--border)" }
-          : { background: "transparent", borderColor: "transparent" }
-      }
-    >
-      <nav
-        className="flex items-center justify-between px-8 h-[58px]"
-        style={{ maxWidth: 1080, margin: "0 auto" }}
-      >
-        {/* Logo */}
-        <a
-          href="#"
-          onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-          className="text-sm font-bold tracking-tight"
-          style={{ color: "var(--ink)", textDecoration: "none", transition: "color .2s" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-warm)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink)")}
-        >
-          Abhi Poluri
+    <header className="site-header">
+      <nav className="shell nav-shell" aria-label="Primary navigation">
+        <a className="wordmark" href="#top" aria-label="Abhi Poluri, back to top">
+          <span className="wordmark-mark">AP</span>
+          <span>Abhi Poluri</span>
         </a>
 
-        {/* Desktop */}
-        <div className="hidden md:flex items-center gap-6">
-          {links.map((l) => (
-            <button
-              key={l.href}
-              onClick={() => go(l.href)}
-              className="nav-link text-[13px] font-medium"
-              style={{ color: "var(--muted)", background: "none", border: "none", cursor: "pointer", transition: "color .2s" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--muted)")}
-            >
-              {l.label}
-            </button>
-          ))}
-
-          <ThemeToggle />
-
-          <a
-            href="/resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-accent text-xs font-semibold px-4 py-[7px] rounded-md"
-            style={{ textDecoration: "none" }}
-          >
-            Resume ↗
-          </a>
+        <div className="nav-links">
+          <a href="#work">Selected work</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
         </div>
 
-        {/* Mobile row */}
-        <div className="flex md:hidden items-center gap-3">
-          <ThemeToggle />
-          <button
-            className="p-1"
-            style={{ color: "var(--muted)", background: "none", border: "none", cursor: "pointer" }}
-            onClick={() => setOpen(!open)}
-            aria-label="Toggle menu"
+        <div className="nav-external" aria-label="External profiles and résumé">
+          <a href="https://github.com/AbhiPoluri" target="_blank" rel="noopener noreferrer">
+            <span className="external-full">GitHub</span>
+            <span className="external-short">GH</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a
+            href="https://www.linkedin.com/in/abhiram-poluri/"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              {open
-                ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
-                : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
-              }
-            </svg>
+            <span className="external-full">LinkedIn</span>
+            <span className="external-short">IN</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+          <button
+            className="tear-resume"
+            type="button"
+            onPointerDown={tearResume}
+            onPointerMove={pullResume}
+            onPointerUp={releaseResume}
+            onPointerCancel={releaseResume}
+            onClick={() => {
+              if (resumeDistance.current <= 4) window.open("/resume.pdf", "_blank", "noopener,noreferrer");
+            }}
+            aria-label="Drag to tear off and download the résumé, or click to open it"
+          >
+            <span className="external-full">Résumé</span>
+            <span className="external-short">CV</span>
+            <span aria-hidden="true">↗</span>
           </button>
         </div>
       </nav>
-
-      {/* Mobile menu */}
-      {open && (
-        <div
-          className="md:hidden px-8 py-5 flex flex-col gap-4 border-t"
-          style={{ background: "var(--bg)", borderColor: "var(--border)" }}
-        >
-          {links.map((l) => (
-            <button
-              key={l.href}
-              onClick={() => go(l.href)}
-              className="text-left text-sm font-medium"
-              style={{ color: "var(--muted)", background: "none", border: "none", cursor: "pointer", transition: "color .2s" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-warm)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--muted)")}
-            >
-              {l.label}
-            </button>
-          ))}
-          <a
-            href="/resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-accent text-xs font-semibold px-4 py-2 rounded-md text-center"
-            style={{ textDecoration: "none" }}
-          >
-            Resume ↗
-          </a>
-        </div>
-      )}
+      <span className="nav-progress" style={{ transform: `scaleX(${progress})` }} aria-hidden="true" />
     </header>
   );
 }

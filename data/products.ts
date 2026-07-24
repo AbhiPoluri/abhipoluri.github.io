@@ -22,17 +22,6 @@ export const products: Product[] = [
     accent: "#FF8400",
   },
   {
-    id: 2,
-    name: "StriveSync",
-    tagline: "Build habits that actually stick",
-    description:
-      "A social habit tracker built around accountability pods — small groups of friends who log workouts, study sessions, and daily habits together. Gamified with XP, streaks, and a spider chart that tracks your balance across six life dimensions.",
-    tags: ["Next.js", "Supabase", "Gamification", "Social"],
-    link: "https://strivesync.vercel.app",
-    videoSrc: "/videos/strivesync-ad.mp4",
-    accent: "#488e55",
-  },
-  {
     id: 3,
     name: "Ollama Router",
     tagline: "Route prompts to the right local model",
