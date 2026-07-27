@@ -16,13 +16,10 @@ const swarmTasks = [
   { name: "run tests", runtime: "HERMES", x: 50, y: 84 },
 ];
 
-const branchPaths = [
-  "M500 142 C430 188 230 190 170 282",
-  "M500 142 C460 235 390 304 350 430",
-  "M500 142 C540 235 610 304 650 420",
-  "M500 142 C570 188 770 190 830 275",
-  "M500 142 C500 290 500 420 500 520",
-];
+const branchPaths = Array.from(
+  { length: swarmTasks.length },
+  (_, index) => `M500 150 C500 250 500 350 ${swarmTasks[index].x * 10} ${swarmTasks[index].y * 6.2}`,
+);
 
 const agentConversation = [
   {
@@ -78,6 +75,49 @@ export default function BoardroomSwarm() {
   };
 
   useEffect(() => () => clearTimers(), []);
+
+  useEffect(() => {
+    const lab = root.current;
+    const stage = lab?.querySelector<HTMLElement>(".swarm-stage");
+    if (!stage) return;
+
+    const syncBranches = () => {
+      const stageBounds = stage.getBoundingClientRect();
+      const hub = stage.querySelector<HTMLElement>(".swarm-hub");
+      const agents = Array.from(stage.querySelectorAll<HTMLElement>(".swarm-agent"));
+      const paths = Array.from(stage.querySelectorAll<SVGPathElement>(".swarm-branch"));
+      if (!hub || stageBounds.width === 0 || stageBounds.height === 0) return;
+
+      const hubBounds = hub.getBoundingClientRect();
+      const startX = ((hubBounds.left + hubBounds.width / 2 - stageBounds.left) / stageBounds.width) * 1000;
+      const startY = ((hubBounds.bottom - stageBounds.top) / stageBounds.height) * 620;
+
+      paths.forEach((path, index) => {
+        const agent = agents[index];
+        if (!agent) return;
+        const agentBounds = agent.getBoundingClientRect();
+        const endX = ((agentBounds.left + agentBounds.width / 2 - stageBounds.left) / stageBounds.width) * 1000;
+        const endY = ((agentBounds.top + agentBounds.height / 2 - stageBounds.top) / stageBounds.height) * 620;
+        const bendX = startX + (endX - startX) * .55;
+        const bendY = startY + (endY - startY) * .58;
+        path.setAttribute(
+          "d",
+          `M ${startX} ${startY} C ${startX} ${bendY}, ${bendX} ${bendY}, ${endX} ${endY}`,
+        );
+      });
+    };
+
+    const frame = window.requestAnimationFrame(syncBranches);
+    const observer = new ResizeObserver(syncBranches);
+    observer.observe(stage);
+    window.addEventListener("resize", syncBranches);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", syncBranches);
+    };
+  }, []);
 
   useGSAP(
     () => {

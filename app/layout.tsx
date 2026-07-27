@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Instrument_Serif } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const sans = Geist({
@@ -34,6 +35,32 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${sans.variable} ${display.variable}`}>
+        <Script id="reset-refresh-scroll" strategy="beforeInteractive">
+          {`
+            if ("scrollRestoration" in history) {
+              history.scrollRestoration = "manual";
+            }
+            const root = document.documentElement;
+            const forceTop = () => {
+              window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+              root.scrollTop = 0;
+              if (document.body) document.body.scrollTop = 0;
+            };
+            window.addEventListener("beforeunload", forceTop);
+            const navigation = performance.getEntriesByType("navigation")[0];
+            if (navigation && navigation.type === "reload") {
+              let resetFrames = 0;
+              const holdAtTop = () => {
+                forceTop();
+                resetFrames += 1;
+                if (resetFrames < 30) {
+                  requestAnimationFrame(holdAtTop);
+                }
+              };
+              holdAtTop();
+            }
+          `}
+        </Script>
         {children}
       </body>
     </html>

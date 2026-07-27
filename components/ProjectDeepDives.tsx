@@ -100,7 +100,10 @@ export default function ProjectDeepDives() {
         <div className="deep-dive-shell shell">
           <header className="deep-dive-heading">
             <div>
-              <span className="deep-kicker">Boardroom · agent infrastructure</span>
+              <span className="deep-app-label">
+                <strong>Boardroom</strong>
+                <span>Agent infrastructure</span>
+              </span>
               <span className="deep-counter">01 / 03</span>
             </div>
             <h2><SplitTitle>One desk for an entire agent team.</SplitTitle></h2>
@@ -169,7 +172,10 @@ export default function ProjectDeepDives() {
         <div className="deep-dive-shell shell">
           <header className="deep-dive-heading">
             <div>
-              <span className="deep-kicker">PocketLog · consumer finance</span>
+              <span className="deep-app-label">
+                <strong>PocketLog</strong>
+                <span>Consumer finance</span>
+              </span>
               <span className="deep-counter">02 / 03</span>
             </div>
             <h2><SplitTitle>Receipts in. Clarity out.</SplitTitle></h2>
@@ -238,7 +244,10 @@ export default function ProjectDeepDives() {
         <div className="deep-dive-shell shell">
           <header className="deep-dive-heading">
             <div>
-              <span className="deep-kicker">SQL-R1 · model distillation</span>
+              <span className="deep-app-label">
+                <strong>SQL-R1</strong>
+                <span>Model distillation</span>
+              </span>
               <span className="deep-counter">03 / 03</span>
             </div>
             <h2><SplitTitle>The best model was hiding at iteration fifty.</SplitTitle></h2>

@@ -505,6 +505,11 @@ export default function DeskPlayground() {
   }, [makeStamp, playSound, stealCursor]);
 
   const grabPet = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (petJailedRef.current) {
+      petPosition.current.y += window.scrollY;
+      petJailedRef.current = false;
+      setPetJailed(false);
+    }
     petDragging.current = true;
     petMoved.current = false;
     petThrow.current.active = false;
@@ -548,7 +553,7 @@ export default function DeskPlayground() {
     }
     petPosition.current = {
       x: gsap.utils.clamp(8, window.innerWidth - 62, nextX),
-      y: gsap.utils.clamp(70, petHabitatBottom.current - 62, nextY),
+      y: gsap.utils.clamp(2, petHabitatBottom.current - 62, nextY),
     };
 
     const jailBounds = petJail.current?.getBoundingClientRect();
@@ -592,7 +597,7 @@ export default function DeskPlayground() {
       petHop.current.active = false;
       petPosition.current = {
         x: jailBounds.left + jailBounds.width / 2 - 30,
-        y: jailBounds.top + window.scrollY + jailBounds.height / 2 - 27,
+        y: jailBounds.top + jailBounds.height / 2 - 27,
       };
       setCreatureMood("braced");
       playSound("success");
@@ -623,6 +628,7 @@ export default function DeskPlayground() {
 
   const freePet = () => {
     if (!petJailedRef.current) return;
+    petPosition.current.y += window.scrollY;
     petJailedRef.current = false;
     setPetJailed(false);
     setCreatureMood("awake");
@@ -1369,6 +1375,7 @@ export default function DeskPlayground() {
           onPointerMove={dragPet}
           onPointerUp={dropPet}
           onPointerCancel={dropPet}
+          onLostPointerCapture={dropPet}
           aria-label={`Desk creature is ${petJailed ? "in time-out" : creatureMood}. Drag and throw it, or click to let it steal the cursor.`}
         >
           <span className="desk-creature-eyes" aria-hidden="true"><i /><i /></span>

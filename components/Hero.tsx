@@ -445,7 +445,7 @@ export default function Hero() {
     () => {
       gsap.from(".hero-letter-glyph", {
         yPercent: 125,
-        rotation: () => gsap.utils.random(-14, 14),
+        rotation: () => gsap.utils.random(-4, 4),
         opacity: 0,
         duration: 1.25,
         stagger: { each: 0.045, from: "random" },
@@ -484,6 +484,7 @@ export default function Hero() {
       const scrapInstances = scraps.flatMap((scrap) =>
         Draggable.create(scrap, {
           type: "x,y",
+          bounds: root.current,
           edgeResistance: 0.68,
           cursor: "grab",
           activeCursor: "grabbing",
@@ -498,11 +499,9 @@ export default function Hero() {
           onRelease() {
             scrap.classList.remove("is-held");
             gsap.to(scrap, {
-              x: 0,
-              y: 0,
               scale: 1,
-              duration: 0.85,
-              ease: "elastic.out(1, .42)",
+              duration: 0.38,
+              ease: "back.out(1.8)",
             });
             window.setTimeout(() => delete scrap.dataset.dragged, 0);
           },
@@ -958,6 +957,7 @@ export default function Hero() {
                   return (
                     <button
                       className="hero-letter"
+                      data-letter={letter}
                       key={`${letter}-${index}`}
                       onPointerDown={(event) => hit(event, index)}
                       type="button"
