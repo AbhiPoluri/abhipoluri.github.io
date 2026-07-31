@@ -1,73 +1,78 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP);
 
-type SwarmPhase = "idle" | "running" | "conflict" | "merged";
+type OpsPhase = "assigning" | "running" | "review" | "merged";
+type TaskStatus = "loose" | "assigned" | "working" | "done" | "trashed";
 
-const swarmTasks = [
-  { name: "map auth", runtime: "CLAUDE", x: 17, y: 42 },
-  { name: "write schema", runtime: "CODEX", x: 35, y: 68 },
-  { name: "build UI", runtime: "OPENCODE", x: 64, y: 66 },
-  { name: "wire API", runtime: "CODEX", x: 83, y: 41 },
-  { name: "run tests", runtime: "HERMES", x: 50, y: 84 },
+type Agent = {
+  id: string;
+  name: string;
+  runtime: string;
+  specialty: string;
+  x: number;
+  y: number;
+  color: string;
+};
+
+type OpsTask = {
+  id: string;
+  title: string;
+  kind: string;
+  preferred: string;
+  agentId?: string;
+  status: TaskStatus;
+};
+
+type Handoff = {
+  taskId: string;
+  from: string;
+  to: string;
+  note: string;
+};
+
+const agents: Agent[] = [
+  { id: "research", name: "Researcher", runtime: "Claude", specialty: "Maps the system", x: 17, y: 37, color: "#f4bd43" },
+  { id: "build", name: "Builder", runtime: "Codex", specialty: "Writes the change", x: 39, y: 58, color: "#e77558" },
+  { id: "interface", name: "Interface", runtime: "OpenCode", specialty: "Shapes the product", x: 64, y: 57, color: "#efe5d6" },
+  { id: "review", name: "Reviewer", runtime: "Hermes", specialty: "Tries to break it", x: 84, y: 36, color: "#f4bd43" },
 ];
 
-const branchPaths = Array.from(
-  { length: swarmTasks.length },
-  (_, index) => `M500 150 C500 250 500 350 ${swarmTasks[index].x * 10} ${swarmTasks[index].y * 6.2}`,
-);
-
-const agentConversation = [
-  {
-    speaker: "Researcher",
-    recipient: "Builder",
-    text: "Auth surface mapped. Three middleware files and one session edge case.",
-    x: 16,
-    y: 29,
-  },
-  {
-    speaker: "Builder",
-    recipient: "Reviewer",
-    text: "Implementation committed. Passing the diff and test context now.",
-    x: 69,
-    y: 51,
-  },
-  {
-    speaker: "Reviewer",
-    recipient: "Builder",
-    text: "Refresh-token regression on expiry. Sending the failing assertion back.",
-    x: 43,
-    y: 69,
-  },
-  {
-    speaker: "Builder",
-    recipient: "Reviewer",
-    text: "Patched the boundary condition. All 145 tests are green.",
-    x: 68,
-    y: 47,
-  },
-  {
-    speaker: "Reviewer",
-    recipient: "Orchestrator",
-    text: "Verified. Clean diff, clean tree, ready to merge.",
-    x: 44,
-    y: 65,
-  },
+const starterTasks: OpsTask[] = [
+  { id: "surface", title: "Map auth surface", kind: "RESEARCH", preferred: "research", status: "loose" },
+  { id: "schema", title: "Write session schema", kind: "BACKEND", preferred: "build", status: "loose" },
+  { id: "magic-link", title: "Build magic-link UI", kind: "INTERFACE", preferred: "interface", status: "loose" },
+  { id: "middleware", title: "Wire middleware", kind: "BACKEND", preferred: "build", status: "loose" },
+  { id: "tests", title: "Attack expiry edge cases", kind: "REVIEW", preferred: "review", status: "loose" },
 ];
+
+const agentById = new Map(agents.map((agent) => [agent.id, agent]));
 
 export default function BoardroomSwarm() {
   const root = useRef<HTMLDivElement>(null);
-  const conflict = useRef<HTMLDivElement>(null);
   const timers = useRef<number[]>([]);
-  const resolverDrag = useRef({ x: 0, y: 0, startX: 0, startY: 0 });
-  const [phase, setPhase] = useState<SwarmPhase>("idle");
-  const [messageIndex, setMessageIndex] = useState(-1);
+  const pausedRef = useRef(new Set<string>());
+  const duplicateId = useRef(0);
+  const taskDrag = useRef({ id: "", startX: 0, startY: 0, x: 0, y: 0, moved: false });
+  const stampDrag = useRef({ startX: 0, startY: 0, x: 0, y: 0 });
   const [mission, setMission] = useState("Ship passwordless auth");
-  const [metrics, setMetrics] = useState({ tokens: 0, cost: 0, tests: 0 });
+  const [phase, setPhase] = useState<OpsPhase>("assigning");
+  const [tasks, setTasks] = useState<OpsTask[]>(starterTasks);
+  const [pausedAgents, setPausedAgents] = useState<string[]>([]);
+  const [handoff, setHandoff] = useState<Handoff | null>(null);
+  const [selectedTask, setSelectedTask] = useState<OpsTask | null>(null);
+  const [metrics, setMetrics] = useState({ tokens: 0, spend: 0, tests: 0 });
+
+  const activeTasks = useMemo(
+    () => tasks.filter((task) => task.status !== "trashed"),
+    [tasks],
+  );
+  const assignedCount = activeTasks.filter((task) => task.agentId).length;
+  const doneCount = activeTasks.filter((task) => task.status === "done").length;
 
   const clearTimers = () => {
     timers.current.forEach((timer) => window.clearTimeout(timer));
@@ -76,233 +81,310 @@ export default function BoardroomSwarm() {
 
   useEffect(() => () => clearTimers(), []);
 
-  useEffect(() => {
-    const lab = root.current;
-    const stage = lab?.querySelector<HTMLElement>(".swarm-stage");
-    if (!stage) return;
-
-    const syncBranches = () => {
-      const stageBounds = stage.getBoundingClientRect();
-      const hub = stage.querySelector<HTMLElement>(".swarm-hub");
-      const agents = Array.from(stage.querySelectorAll<HTMLElement>(".swarm-agent"));
-      const paths = Array.from(stage.querySelectorAll<SVGPathElement>(".swarm-branch"));
-      if (!hub || stageBounds.width === 0 || stageBounds.height === 0) return;
-
-      const hubBounds = hub.getBoundingClientRect();
-      const startX = ((hubBounds.left + hubBounds.width / 2 - stageBounds.left) / stageBounds.width) * 1000;
-      const startY = ((hubBounds.bottom - stageBounds.top) / stageBounds.height) * 620;
-
-      paths.forEach((path, index) => {
-        const agent = agents[index];
-        if (!agent) return;
-        const agentBounds = agent.getBoundingClientRect();
-        const endX = ((agentBounds.left + agentBounds.width / 2 - stageBounds.left) / stageBounds.width) * 1000;
-        const endY = ((agentBounds.top + agentBounds.height / 2 - stageBounds.top) / stageBounds.height) * 620;
-        const bendX = startX + (endX - startX) * .55;
-        const bendY = startY + (endY - startY) * .58;
-        path.setAttribute(
-          "d",
-          `M ${startX} ${startY} C ${startX} ${bendY}, ${bendX} ${bendY}, ${endX} ${endY}`,
-        );
-      });
-    };
-
-    const frame = window.requestAnimationFrame(syncBranches);
-    const observer = new ResizeObserver(syncBranches);
-    observer.observe(stage);
-    window.addEventListener("resize", syncBranches);
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      observer.disconnect();
-      window.removeEventListener("resize", syncBranches);
-    };
-  }, []);
-
   useGSAP(
     () => {
-      gsap.set(".swarm-branch", { strokeDasharray: 900, strokeDashoffset: 900 });
-      gsap.set(".swarm-task", { scale: 0, opacity: 0 });
-      gsap.set(".swarm-agent", { scale: 1, opacity: 1 });
+      gsap.from(".ops-agent", {
+        scale: .45,
+        opacity: 0,
+        rotation: () => gsap.utils.random(-10, 10),
+        stagger: .08,
+        duration: .65,
+        ease: "back.out(2.2)",
+      });
+      gsap.from(".ops-task-card", {
+        y: 60,
+        opacity: 0,
+        rotation: () => gsap.utils.random(-8, 8),
+        stagger: .06,
+        duration: .7,
+        ease: "back.out(1.7)",
+      });
     },
     { scope: root },
   );
 
-  const runMission = () => {
+  useEffect(() => {
+    if (!handoff || !root.current) return;
+    const stage = root.current.querySelector<HTMLElement>(".ops-stage");
+    const artifact = root.current.querySelector<HTMLElement>(".ops-handoff-artifact");
+    const from = root.current.querySelector<HTMLElement>(`[data-agent="${handoff.from}"]`);
+    const to = root.current.querySelector<HTMLElement>(`[data-agent="${handoff.to}"]`);
+    if (!stage || !artifact || !from || !to) return;
+
+    const stageBounds = stage.getBoundingClientRect();
+    const fromBounds = from.getBoundingClientRect();
+    const toBounds = to.getBoundingClientRect();
+    const fromX = fromBounds.left + fromBounds.width / 2 - stageBounds.left;
+    const fromY = fromBounds.top + fromBounds.height / 2 - stageBounds.top;
+    const toX = toBounds.left + toBounds.width / 2 - stageBounds.left;
+    const toY = toBounds.top + toBounds.height / 2 - stageBounds.top;
+
+    gsap.fromTo(
+      artifact,
+      { x: fromX, y: fromY, scale: .45, rotation: -12, opacity: 0 },
+      {
+        x: toX,
+        y: toY,
+        scale: 1,
+        rotation: 3,
+        opacity: 1,
+        duration: .82,
+        ease: "back.out(1.45)",
+      },
+    );
+  }, [handoff]);
+
+  const resetBoard = () => {
     clearTimers();
-    setPhase("running");
-    setMessageIndex(-1);
-    setMetrics({ tokens: 0, cost: 0, tests: 0 });
-    resolverDrag.current = { x: 0, y: 0, startX: 0, startY: 0 };
-
+    pausedRef.current.clear();
+    setPausedAgents([]);
+    setTasks(starterTasks);
+    setPhase("assigning");
+    setHandoff(null);
+    setSelectedTask(null);
+    setMetrics({ tokens: 0, spend: 0, tests: 0 });
     requestAnimationFrame(() => {
-      const stage = root.current;
-      if (!stage) return;
-      const stageBounds = stage.getBoundingClientRect();
-      const centerX = stageBounds.width * .5;
-      const centerY = stageBounds.height * .23;
-      const tasks = gsap.utils.toArray<HTMLElement>(".swarm-task", stage);
-      const agents = gsap.utils.toArray<HTMLElement>(".swarm-agent", stage);
-
-      gsap.killTweensOf([...tasks, ...agents]);
-      gsap.set(".swarm-resolution, .swarm-conflict", { clearProps: "transform,opacity" });
-      gsap.set(".swarm-resolver", { x: 0, y: 0, opacity: 1 });
-
-      const timeline = gsap.timeline();
-      timeline
-        .to(".swarm-branch", {
-          strokeDashoffset: 0,
-          duration: 1.5,
-          stagger: .09,
-          ease: "power2.inOut",
-        })
-        .fromTo(
-          agents,
-          { scale: .4, opacity: 0, rotation: -20 },
-          {
-            scale: 1,
-            opacity: 1,
-            rotation: 0,
-            duration: .65,
-            stagger: .12,
-            ease: "back.out(2.4)",
-          },
-          .2,
-        );
-
-      tasks.forEach((task, index) => {
-        const bounds = task.getBoundingClientRect();
-        gsap.fromTo(
-          task,
-          {
-            x: centerX - (bounds.left - stageBounds.left) - bounds.width / 2,
-            y: centerY - (bounds.top - stageBounds.top) - bounds.height / 2,
-            scale: .15,
-            opacity: 0,
-            rotation: gsap.utils.random(-18, 18),
-          },
-          {
-            x: 0,
-            y: 0,
-            scale: 1,
-            opacity: 1,
-            rotation: 0,
-            duration: 1,
-            delay: .45 + index * .17,
-            ease: "back.out(1.55)",
-          },
-        );
-      });
-
-      gsap.to(agents, {
-        y: () => gsap.utils.random(-7, 7),
-        rotation: () => gsap.utils.random(-3, 3),
-        duration: .55,
-        repeat: 4,
-        yoyo: true,
-        stagger: .08,
-        ease: "sine.inOut",
-      });
+      gsap.set(".ops-task-card, .ops-merge-stamp", { clearProps: "transform,opacity" });
     });
-
-    timers.current = [
-      window.setTimeout(() => {
-        setMetrics({ tokens: 18432, cost: .31, tests: 38 });
-        setMessageIndex(0);
-      }, 850),
-      window.setTimeout(() => setMessageIndex(1), 1650),
-      window.setTimeout(() => {
-        setMetrics({ tokens: 46108, cost: .79, tests: 97 });
-        setMessageIndex(2);
-      }, 2450),
-      window.setTimeout(() => setMessageIndex(3), 3350),
-      window.setTimeout(() => setMessageIndex(4), 4200),
-      window.setTimeout(() => {
-        setMetrics({ tokens: 63841, cost: 1.14, tests: 145 });
-        setPhase("conflict");
-        setMessageIndex(-1);
-        requestAnimationFrame(() => {
-          gsap.fromTo(
-            ".swarm-conflict",
-            { scale: 0, rotation: -35, opacity: 0 },
-            { scale: 1, rotation: 0, opacity: 1, duration: .8, ease: "elastic.out(1, .38)" },
-          );
-          gsap.to(".swarm-task, .swarm-agent", { opacity: .34, scale: .92, duration: .5 });
-        });
-      }, 5200),
-    ];
   };
 
-  const resolveConflict = () => {
-    setPhase("merged");
-    setMetrics((current) => ({ ...current, tests: 145 }));
-    gsap.timeline()
-      .to(".swarm-conflict", { scale: 0, rotation: 70, opacity: 0, duration: .45, ease: "back.in(2)" })
-      .to(".swarm-task", {
-        left: "50%",
-        top: "54%",
-        xPercent: -50,
-        yPercent: -50,
-        scale: 0,
-        opacity: 0,
-        rotation: () => gsap.utils.random(-120, 120),
-        duration: .75,
-        stagger: .06,
-        ease: "power3.in",
-      }, 0)
-      .to(".swarm-agent", { scale: .65, opacity: .2, duration: .5 }, 0)
-      .fromTo(
-        ".swarm-resolution",
-        { scale: .25, opacity: 0, rotation: -8 },
-        { scale: 1, opacity: 1, rotation: 0, duration: .8, ease: "elastic.out(1, .42)" },
-        .5,
-      )
-      .to(".swarm-branch", { stroke: "#f0e9de", strokeDashoffset: -100, duration: .8 }, .25);
+  const assignTask = (taskId: string, agentId?: string) => {
+    setTasks((current) => current.map((task) => (
+      task.id === taskId
+        ? {
+            ...task,
+            agentId,
+            status: agentId ? (phase === "running" ? "working" : "assigned") : "loose",
+          }
+        : task
+    )));
   };
 
-  const resolverDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (phase !== "conflict") return;
+  const taskDown = (event: React.PointerEvent<HTMLButtonElement>, taskId: string) => {
+    if (phase === "review" || phase === "merged") return;
     event.currentTarget.setPointerCapture(event.pointerId);
-    resolverDrag.current.startX = event.clientX;
-    resolverDrag.current.startY = event.clientY;
-    resolverDrag.current.x = Number(gsap.getProperty(event.currentTarget, "x")) || 0;
-    resolverDrag.current.y = Number(gsap.getProperty(event.currentTarget, "y")) || 0;
-    gsap.to(event.currentTarget, { scale: 1.12, duration: .18 });
+    taskDrag.current = {
+      id: taskId,
+      startX: event.clientX,
+      startY: event.clientY,
+      x: Number(gsap.getProperty(event.currentTarget, "x")) || 0,
+      y: Number(gsap.getProperty(event.currentTarget, "y")) || 0,
+      moved: false,
+    };
+    event.currentTarget.classList.add("is-dragging");
+    gsap.to(event.currentTarget, { scale: 1.08, rotation: -2, duration: .16 });
   };
 
-  const resolverMove = (event: React.PointerEvent<HTMLButtonElement>) => {
+  const taskMove = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
-    const x = resolverDrag.current.x + event.clientX - resolverDrag.current.startX;
-    const y = resolverDrag.current.y + event.clientY - resolverDrag.current.startY;
+    const x = taskDrag.current.x + event.clientX - taskDrag.current.startX;
+    const y = taskDrag.current.y + event.clientY - taskDrag.current.startY;
+    if (Math.hypot(x - taskDrag.current.x, y - taskDrag.current.y) > 6) {
+      taskDrag.current.moved = true;
+    }
     gsap.set(event.currentTarget, { x, y });
-    const target = conflict.current?.getBoundingClientRect();
-    if (!target) return;
-    const over = event.clientX >= target.left && event.clientX <= target.right
-      && event.clientY >= target.top && event.clientY <= target.bottom;
-    conflict.current?.classList.toggle("is-armed", over);
+
+    root.current?.querySelectorAll<HTMLElement>("[data-agent-drop], .ops-trash").forEach((target) => {
+      const bounds = target.getBoundingClientRect();
+      const over = event.clientX >= bounds.left && event.clientX <= bounds.right
+        && event.clientY >= bounds.top && event.clientY <= bounds.bottom;
+      target.classList.toggle("is-armed", over);
+    });
   };
 
-  const resolverUp = (event: React.PointerEvent<HTMLButtonElement>) => {
+  const taskUp = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
     event.currentTarget.releasePointerCapture(event.pointerId);
-    const target = conflict.current?.getBoundingClientRect();
-    const hit = target
-      && event.clientX >= target.left && event.clientX <= target.right
-      && event.clientY >= target.top && event.clientY <= target.bottom;
-    conflict.current?.classList.remove("is-armed");
-    if (hit) {
-      gsap.to(event.currentTarget, { opacity: 0, scale: .3, duration: .25 });
-      resolveConflict();
-    } else {
-      gsap.to(event.currentTarget, { x: 0, y: 0, scale: 1, duration: .75, ease: "elastic.out(1, .4)" });
+    event.currentTarget.classList.remove("is-dragging");
+
+    const trash = root.current?.querySelector<HTMLElement>(".ops-trash");
+    const trashBounds = trash?.getBoundingClientRect();
+    const inTrash = trashBounds
+      && event.clientX >= trashBounds.left && event.clientX <= trashBounds.right
+      && event.clientY >= trashBounds.top && event.clientY <= trashBounds.bottom;
+
+    let agentTarget: HTMLElement | undefined;
+    root.current?.querySelectorAll<HTMLElement>("[data-agent-drop]").forEach((target) => {
+      const bounds = target.getBoundingClientRect();
+      if (
+        event.clientX >= bounds.left && event.clientX <= bounds.right
+        && event.clientY >= bounds.top && event.clientY <= bounds.bottom
+      ) agentTarget = target;
+      target.classList.remove("is-armed");
+    });
+    trash?.classList.remove("is-armed");
+
+    if (inTrash) {
+      setTasks((current) => current.map((task) => (
+        task.id === taskDrag.current.id ? { ...task, status: "trashed", agentId: undefined } : task
+      )));
+      gsap.to(event.currentTarget, {
+        scale: .1,
+        opacity: 0,
+        rotation: 65,
+        duration: .35,
+        ease: "back.in(2)",
+      });
+      return;
+    }
+
+    const agentId = agentTarget?.dataset.agentDrop;
+    if (agentId) {
+      assignTask(taskDrag.current.id, agentId);
+      const targetAgent = agentById.get(agentId);
+      if (targetAgent && phase === "running") {
+        setHandoff({
+          taskId: taskDrag.current.id,
+          from: "research",
+          to: agentId,
+          note: `Reassigned live to ${targetAgent.runtime}. Context moved with the task.`,
+        });
+      }
+      gsap.to(event.currentTarget, {
+        x: 0,
+        y: 0,
+        scale: 1,
+        rotation: 0,
+        duration: .5,
+        ease: "back.out(1.8)",
+      });
+      return;
+    }
+
+    gsap.to(event.currentTarget, {
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotation: 0,
+      duration: .65,
+      ease: "elastic.out(1, .45)",
+    });
+  };
+
+  const duplicateTask = (task: OpsTask) => {
+    if (phase === "review" || phase === "merged") return;
+    duplicateId.current += 1;
+    const duplicate: OpsTask = {
+      ...task,
+      id: `${task.id}-copy-${duplicateId.current}`,
+      title: `${task.title} copy`,
+      agentId: undefined,
+      status: "loose",
+    };
+    setTasks((current) => [...current, duplicate]);
+  };
+
+  const togglePause = (agentId: string) => {
+    if (phase !== "running") return;
+    const next = new Set(pausedRef.current);
+    if (next.has(agentId)) next.delete(agentId);
+    else next.add(agentId);
+    pausedRef.current = next;
+    setPausedAgents([...next]);
+    const agent = root.current?.querySelector<HTMLElement>(`[data-agent="${agentId}"]`);
+    if (agent) {
+      gsap.fromTo(agent, { scale: .82, rotation: -7 }, { scale: 1, rotation: 0, duration: .55, ease: "elastic.out(1, .35)" });
     }
   };
 
+  const completeTask = (taskId: string, agentId: string, index: number) => {
+    if (pausedRef.current.has(agentId)) {
+      timers.current.push(window.setTimeout(() => completeTask(taskId, agentId, index), 500));
+      return;
+    }
+    setTasks((current) => current.map((task) => (
+      task.id === taskId ? { ...task, status: "done" } : task
+    )));
+    const target = index === agents.length - 1 ? agents[0] : agents[index % agents.length];
+    const task = tasks.find((candidate) => candidate.id === taskId);
+    setHandoff({
+      taskId,
+      from: agentId,
+      to: target.id,
+      note: task?.preferred === agentId
+        ? "Clean handoff. Context, diff, and test state included."
+        : "The agent adapted, but left a note about the unusual assignment.",
+    });
+    setMetrics((current) => ({
+      tokens: current.tokens + 11743 + index * 1803,
+      spend: Number((current.spend + .19 + index * .07).toFixed(2)),
+      tests: Math.min(145, current.tests + 29 + index * 4),
+    }));
+  };
+
+  const runPlan = () => {
+    const queue = tasks.filter((task) => task.agentId && task.status !== "trashed");
+    if (queue.length < 3) return;
+    clearTimers();
+    setPhase("running");
+    setSelectedTask(null);
+    setMetrics({ tokens: 0, spend: 0, tests: 0 });
+    setTasks((current) => current.map((task) => (
+      task.agentId && task.status !== "trashed" ? { ...task, status: "working" } : task
+    )));
+
+    queue.forEach((task, index) => {
+      timers.current.push(window.setTimeout(
+        () => completeTask(task.id, task.agentId as string, index),
+        850 + index * 980,
+      ));
+    });
+    timers.current.push(window.setTimeout(() => {
+      setHandoff(null);
+      setMetrics((current) => ({ ...current, tests: 145 }));
+      setPhase("review");
+    }, 1350 + queue.length * 980));
+  };
+
+  const stampDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    stampDrag.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      x: Number(gsap.getProperty(event.currentTarget, "x")) || 0,
+      y: Number(gsap.getProperty(event.currentTarget, "y")) || 0,
+    };
+    gsap.to(event.currentTarget, { scale: 1.08, rotation: -8, duration: .16 });
+  };
+
+  const stampMove = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    const x = stampDrag.current.x + event.clientX - stampDrag.current.startX;
+    const y = stampDrag.current.y + event.clientY - stampDrag.current.startY;
+    gsap.set(event.currentTarget, { x, y });
+    const pullRequest = root.current?.querySelector<HTMLElement>(".ops-pull-request");
+    const bounds = pullRequest?.getBoundingClientRect();
+    const over = bounds
+      && event.clientX >= bounds.left && event.clientX <= bounds.right
+      && event.clientY >= bounds.top && event.clientY <= bounds.bottom;
+    pullRequest?.classList.toggle("is-armed", Boolean(over));
+  };
+
+  const stampUp = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    event.currentTarget.releasePointerCapture(event.pointerId);
+    const pullRequest = root.current?.querySelector<HTMLElement>(".ops-pull-request");
+    const bounds = pullRequest?.getBoundingClientRect();
+    const hit = bounds
+      && event.clientX >= bounds.left && event.clientX <= bounds.right
+      && event.clientY >= bounds.top && event.clientY <= bounds.bottom;
+    pullRequest?.classList.remove("is-armed");
+    if (!hit) {
+      gsap.to(event.currentTarget, { x: 0, y: 0, scale: 1, rotation: -4, duration: .65, ease: "elastic.out(1, .4)" });
+      return;
+    }
+    gsap.to(event.currentTarget, { scale: 1.35, rotation: -12, duration: .18, yoyo: true, repeat: 1 });
+    if (pullRequest) {
+      gsap.fromTo(pullRequest, { scale: 1.05 }, { scale: 1, duration: .55, ease: "elastic.out(1, .35)" });
+    }
+    window.setTimeout(() => setPhase("merged"), 260);
+  };
+
   return (
-    <div className={`swarm-lab is-${phase}`} ref={root}>
-      <header className="swarm-toolbar">
+    <div className={`boardroom-ops is-${phase}`} ref={root}>
+      <header className="ops-toolbar">
         <label>
-          <span>MISSION</span>
+          <span>Mission</span>
           <input
             value={mission}
             onChange={(event) => setMission(event.target.value)}
@@ -310,111 +392,162 @@ export default function BoardroomSwarm() {
             aria-label="Boardroom mission"
           />
         </label>
-        <button type="button" onClick={runMission} disabled={phase === "running"}>
-          {phase === "idle" ? "Release the agents" : phase === "running" ? "They’re on it" : "Make more chaos"}
-          <span>↗</span>
-        </button>
+        <div>
+          <button type="button" onClick={resetBoard}>Reset table</button>
+          <button type="button" onClick={runPlan} disabled={phase !== "assigning" || assignedCount < 3}>
+            {assignedCount < 3 ? `Assign ${3 - assignedCount} more` : "Run this plan"}
+          </button>
+        </div>
       </header>
 
-      <div className="swarm-stage">
-        <svg viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true">
-          {branchPaths.map((path, index) => (
-            <path className="swarm-branch" d={path} key={path} data-branch={index} />
+      <div className="ops-stage">
+        <svg className="ops-threads" viewBox="0 0 1000 680" preserveAspectRatio="none" aria-hidden="true">
+          {agents.map((agent) => (
+            <path
+              key={agent.id}
+              d={`M500 118 C500 205 ${agent.x * 10} 190 ${agent.x * 10} ${agent.y * 6.8}`}
+              className={activeTasks.some((task) => task.agentId === agent.id) ? "is-active" : ""}
+            />
           ))}
         </svg>
 
-        <div className="swarm-hub">
-          <span>THE BRIEF</span>
+        <section className="ops-brief">
+          <span>Brief on the table</span>
           <strong>{mission || "Untitled mission"}</strong>
-          <i />
+          <small>{assignedCount}/{activeTasks.length} tasks assigned</small>
+        </section>
+
+        {agents.map((agent) => {
+          const assigned = activeTasks.filter((task) => task.agentId === agent.id);
+          const paused = pausedAgents.includes(agent.id);
+          return (
+            <button
+              className={`ops-agent ${assigned.length ? "has-work" : ""} ${paused ? "is-paused" : ""}`}
+              data-agent={agent.id}
+              data-agent-drop={agent.id}
+              style={{ "--agent-x": `${agent.x}%`, "--agent-y": `${agent.y}%`, "--agent-color": agent.color } as React.CSSProperties}
+              type="button"
+              onClick={() => togglePause(agent.id)}
+              key={agent.id}
+            >
+              <span className="ops-agent-face" aria-hidden="true"><i /><i /><b /></span>
+              <strong>{agent.name}</strong>
+              <small>{agent.runtime} · {agent.specialty}</small>
+              <em>{paused ? "paused — click to wake" : assigned.length ? `${assigned.length} task${assigned.length > 1 ? "s" : ""}` : "drop work here"}</em>
+            </button>
+          );
+        })}
+
+        {activeTasks.map((task, index) => {
+          const agent = task.agentId ? agentById.get(task.agentId) : undefined;
+          const looseIndex = activeTasks.filter((candidate) => !candidate.agentId).findIndex((candidate) => candidate.id === task.id);
+          const left = agent ? agent.x : 12 + looseIndex * 18;
+          const top = agent ? agent.y + 15 : 91;
+          return (
+            <button
+              className={`ops-task-card is-${task.status}`}
+              style={{ "--task-x": `${left}%`, "--task-y": `${top}%`, "--task-order": index } as React.CSSProperties}
+              type="button"
+              onPointerDown={(event) => taskDown(event, task.id)}
+              onPointerMove={taskMove}
+              onPointerUp={taskUp}
+              onPointerCancel={taskUp}
+              onDoubleClick={() => duplicateTask(task)}
+              onClick={() => {
+                if (!taskDrag.current.moved && task.status === "done") setSelectedTask(task);
+              }}
+              key={task.id}
+            >
+              <span>{task.kind}</span>
+              <strong>{task.title}</strong>
+              <small>
+                {task.status === "loose" && "drag to an agent"}
+                {task.status === "assigned" && agent?.runtime}
+                {task.status === "working" && (pausedAgents.includes(task.agentId || "") ? "waiting" : "working")}
+                {task.status === "done" && "inspect diff"}
+              </small>
+            </button>
+          );
+        })}
+
+        <div className="ops-trash" aria-label="Discard task">
+          <span>Discard</span>
+          <small>drop task</small>
         </div>
 
-        {swarmTasks.map((task, index) => (
-          <div
-            className="swarm-worker"
-            style={{ "--x": `${task.x}%`, "--y": `${task.y}%` } as React.CSSProperties}
-            key={task.name}
-          >
-            <div className="swarm-agent" aria-hidden="true">
-              <i /><b /><span>{task.runtime.slice(0, 1)}</span>
-            </div>
-            <div className="swarm-task">
-              <span>{task.runtime}</span>
-              <strong>{task.name}</strong>
-              <small>worktree/{index + 1}</small>
-            </div>
-          </div>
-        ))}
-
-        {phase === "conflict" && (
+        {handoff && (
           <>
-            <div className="swarm-conflict" ref={conflict}>
-              <i /><i /><i />
-              <span>MERGE<br />CONFLICT</span>
-              <small>drop resolver here</small>
-            </div>
             <button
-              className="swarm-resolver"
+              className="ops-handoff-artifact"
               type="button"
-              onPointerDown={resolverDown}
-              onPointerMove={resolverMove}
-              onPointerUp={resolverUp}
-              onPointerCancel={resolverUp}
+              onClick={() => setSelectedTask(tasks.find((task) => task.id === handoff.taskId) || null)}
             >
-              <i />
-              <span>CONFLICT ERASER</span>
-              <small>drag onto crash</small>
+              <span>HANDOFF</span>
+              <strong>{tasks.find((task) => task.id === handoff.taskId)?.title}</strong>
+              <small>click to inspect</small>
             </button>
+            <div className="ops-handoff-note">
+              <strong>{agentById.get(handoff.from)?.name} to {agentById.get(handoff.to)?.name}</strong>
+              <p>{handoff.note}</p>
+            </div>
           </>
         )}
 
-        {phase === "merged" && (
-          <div className="swarm-resolution">
-            <span>MERGED</span>
-            <strong>codex/passwordless-auth</strong>
-            <small>145 tests · clean tree · ready for review</small>
-          </div>
+        {selectedTask && (
+          <aside className="ops-inspector">
+            <button type="button" onClick={() => setSelectedTask(null)} aria-label="Close task inspector">Close</button>
+            <span>{selectedTask.kind} · {selectedTask.status}</span>
+            <h4>{selectedTask.title}</h4>
+            <pre>{`+ session boundary guarded\n+ worktree isolated\n+ tests passed: ${selectedTask.status === "done" ? "yes" : "pending"}`}</pre>
+          </aside>
         )}
 
-        {phase === "running" && messageIndex >= 0 && (
-          <div
-            className="swarm-message"
-            style={{
-              "--message-x": `${agentConversation[messageIndex].x}%`,
-              "--message-y": `${agentConversation[messageIndex].y}%`,
-            } as React.CSSProperties}
-            key={messageIndex}
-          >
-            <header>
-              <strong>{agentConversation[messageIndex].speaker}</strong>
-              <span>to {agentConversation[messageIndex].recipient} →</span>
-            </header>
-            <p>{agentConversation[messageIndex].text}</p>
-            <i aria-hidden="true" />
-          </div>
+        {phase === "assigning" && (
+          <p className="ops-instruction">Drag at least three cards onto the agents. Double-click a card to duplicate it.</p>
         )}
 
         {phase === "running" && (
-          <div className="swarm-handoff-feed" aria-label="Agent handoff progress">
-            {agentConversation.map((message, index) => (
-              <span className={index <= messageIndex ? "is-sent" : ""} key={`${message.speaker}-${index}`}>
-                <i />
-                {message.speaker.slice(0, 1)}→{message.recipient.slice(0, 1)}
-              </span>
-            ))}
+          <p className="ops-instruction">Interfere: click an agent to pause it, reassign a live card, or throw work away.</p>
+        )}
+
+        {phase === "review" && (
+          <div className="ops-review">
+            <section className="ops-pull-request">
+              <span>Pull request ready</span>
+              <strong>{mission}</strong>
+              <small>{doneCount} artifacts · 145 tests · clean worktrees</small>
+              <i>Awaiting your stamp</i>
+            </section>
+            <button
+              className="ops-merge-stamp"
+              type="button"
+              onPointerDown={stampDown}
+              onPointerMove={stampMove}
+              onPointerUp={stampUp}
+              onPointerCancel={stampUp}
+            >
+              <span>MERGE</span>
+              <small>drag onto PR</small>
+            </button>
           </div>
         )}
 
-        {phase === "idle" && (
-          <p className="swarm-instruction">They’re bored. Give them something to ship.</p>
+        {phase === "merged" && (
+          <section className="ops-shipped">
+            <span>Shipped from the table</span>
+            <strong>{mission}</strong>
+            <p>One reviewed branch. {doneCount} agent artifacts. The table is clean.</p>
+            <button type="button" onClick={resetBoard}>Run another mission</button>
+          </section>
         )}
       </div>
 
-      <footer className="swarm-metrics">
+      <footer className="ops-metrics">
+        <span><i>assigned</i><strong>{assignedCount}</strong></span>
+        <span><i>finished</i><strong>{doneCount}</strong></span>
         <span><i>tokens</i><strong>{metrics.tokens.toLocaleString()}</strong></span>
-        <span><i>spend</i><strong>${metrics.cost.toFixed(2)}</strong></span>
+        <span><i>spend</i><strong>${metrics.spend.toFixed(2)}</strong></span>
         <span><i>tests</i><strong>{metrics.tests}</strong></span>
-        <span><i>state</i><strong>{phase}</strong></span>
       </footer>
     </div>
   );
