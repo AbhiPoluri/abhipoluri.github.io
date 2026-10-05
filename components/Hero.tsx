@@ -80,24 +80,6 @@ export default function Hero() {
   const gyroActive = useRef(false);
   const gyroRequested = useRef(false);
   const [released, setReleased] = useState(0);
-  const [customTitle, setCustomTitle] = useState(["product", "code", "judgment"]);
-
-  useEffect(() => {
-    const updateTitle = (event: Event) => {
-      const words = (event as CustomEvent<{ words?: string[] }>).detail?.words ?? [];
-      setCustomTitle(words.length ? words : ["curiosity"]);
-    };
-    window.addEventListener("desk:title", updateTitle);
-    return () => window.removeEventListener("desk:title", updateTitle);
-  }, []);
-
-  useEffect(() => {
-    gsap.fromTo(
-      ".hero-custom-title strong",
-      { y: 8, opacity: 0, rotation: -1.5 },
-      { y: 0, opacity: 1, rotation: 0, duration: .42, ease: "back.out(1.8)" },
-    );
-  }, [customTitle]);
 
   useEffect(() => {
     let magnetActive = false;
@@ -566,9 +548,6 @@ export default function Hero() {
         rotation: `+=${gsap.utils.random(-420, 420)}`,
         duration: gsap.utils.clamp(1.4, 10, distance / 760),
         ease: "power1.in",
-        onUpdate: () => {
-          if (bounceFromSpring(element)) falling.kill();
-        },
       })
       .to(element, {
         y: `-=${gsap.utils.random(22, 48)}`,
@@ -660,69 +639,6 @@ export default function Hero() {
     window.setTimeout(checkForWords, 80);
   };
 
-  const bounceFromSpring = (element: HTMLElement) => {
-    if (
-      element.dataset.bouncing === "true" ||
-      Number(element.dataset.springCooldownUntil ?? 0) > Date.now()
-    ) return false;
-    const letterBounds = element.getBoundingClientRect();
-    const letterCenterX = letterBounds.left + letterBounds.width / 2;
-    const spring = gsap.utils
-      .toArray<HTMLElement>(".loose-desk-toy:is(.is-spring, .is-trampoline)")
-      .find((candidate) => {
-        const bounds = candidate.getBoundingClientRect();
-        return (
-          letterCenterX >= bounds.left - 10 &&
-          letterCenterX <= bounds.right + 10 &&
-          letterBounds.bottom >= bounds.top - 18 &&
-          letterBounds.top <= bounds.bottom + 18
-        );
-      });
-    if (!spring) return false;
-
-    const currentX = Number(gsap.getProperty(element, "x")) || 0;
-    const currentY = Number(gsap.getProperty(element, "y")) || 0;
-    const availableLift = letterBounds.top + window.scrollY - 72;
-    const lift = Math.max(58, Math.min(gsap.utils.random(145, 225), availableLift));
-
-    element.dataset.bouncing = "true";
-    element.dataset.springCooldownUntil = String(Date.now() + 2500);
-    window.dispatchEvent(new CustomEvent("desk:sound", { detail: { kind: "impact" } }));
-    gsap.timeline()
-      .to(spring, {
-        scaleX: 1.2,
-        scaleY: .56,
-        duration: .1,
-        ease: "power2.in",
-      })
-      .to(spring, {
-        scaleX: 1,
-        scaleY: 1,
-        duration: .68,
-        ease: "elastic.out(1, .24)",
-      });
-    gsap.timeline()
-      .to(element, {
-        x: currentX + gsap.utils.random(-72, 72),
-        y: currentY - lift,
-        rotation: `+=${gsap.utils.random(-210, 210)}`,
-        scale: 1.12,
-        duration: .42,
-        ease: "power2.out",
-      })
-      .to(element, {
-        y: currentY - 8,
-        scale: 1,
-        duration: .62,
-        ease: "bounce.out",
-        onComplete: () => {
-          delete element.dataset.bouncing;
-          fallToFloor(element);
-        },
-      });
-    return true;
-  };
-
   const makeDraggable = (element: HTMLElement) => {
     const dragOrigin = { x: 0, y: 0 };
     const nailPoint = { x: 0, y: 0 };
@@ -779,10 +695,6 @@ export default function Hero() {
             delete document.body.dataset.edgeImpact;
             window.dispatchEvent(new CustomEvent("desk:creature", { detail: { mood: "awake" } }));
           }, 1350);
-        }
-        if (bounceFromSpring(element)) {
-          window.setTimeout(checkForWords, 80);
-          return;
         }
         gsap.to(element, {
           scale: 1,
@@ -987,13 +899,13 @@ export default function Hero() {
               <button
                 className="hero-scrap"
                 type="button"
-                onClick={(event) => activateScrap(event, "project-1")}
-                aria-label="Now building: abhimem. Open it in the project viewer."
+                onClick={(event) => activateScrap(event, "propking")}
+                aria-label="Now building: PropKing. Open it in the project viewer."
               >
                 <span className="hero-scrap-face">
                   <small>Now building / 01</small>
-                  <strong>abhimem</strong>
-                  <span>memory that stays local</span>
+                  <strong>PropKing</strong>
+                  <span>honest sports props research</span>
                   <em>send to viewer ↘</em>
                 </span>
               </button>
@@ -1003,13 +915,13 @@ export default function Hero() {
               <button
                 className="hero-scrap"
                 type="button"
-                onClick={(event) => activateScrap(event, "feature-par0")}
-                aria-label="Just shipped: par0 Prompt Golf. Open it in the project viewer."
+                onClick={(event) => activateScrap(event, "errand")}
+                aria-label="Just shipped: Errand. Open it in the project viewer."
               >
                 <span className="hero-scrap-face">
                   <small>Just shipped / 02</small>
-                  <strong>par0</strong>
-                  <span>prompt golf for tiny prompts</span>
+                  <strong>Errand</strong>
+                  <span>a calm agent, built from scratch</span>
                   <em>send to viewer ↘</em>
                 </span>
               </button>
@@ -1036,10 +948,6 @@ export default function Hero() {
               <p>
                 I&apos;m Abhi. I turn rough problems into useful products across AI, planning,
                 and new ventures.
-              </p>
-              <p className="hero-custom-title" aria-live="polite">
-                <span>Your desk title</span>
-                <strong>{customTitle.join(" + ")}</strong>
               </p>
             </div>
             <div className="hero-actions">

@@ -1,335 +1,266 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { projects } from "@/data/projects";
-import { products } from "@/data/products";
-import { githubProjects } from "@/data/githubProjects";
-import { linkedInProjects } from "@/data/linkedInProjects";
+import {
+  work,
+  workCounts,
+  workFilters,
+  type WorkFilter,
+  type WorkItem,
+} from "@/data/work";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const workCollection = [
-  ...projects.map((project, index) => ({
-    id: `project-${project.id}`,
-    name: project.title,
-    tagline: project.impact,
-    description: project.description,
-    tags: project.tags,
-    link: project.link,
-    image: project.screenshot,
-    video: null,
-    year: index < 2 ? "2026" : "2025",
-    kind: project.type,
-  })),
-  ...products.map((product, index) => ({
-    id: `product-${product.id}`,
-    name: product.name,
-    tagline: product.tagline,
-    description: product.description,
-    tags: product.tags,
-    link: product.link,
-    image: null,
-    video: product.videoSrc,
-    year: index === 0 ? "2026" : "2025",
-    kind: "product",
-  })),
-  ...githubProjects.map((project) => ({
-    id: `github-${project.id}`,
-    name: project.name,
-    tagline: project.tagline,
-    description: project.description,
-    tags: project.tags,
-    link: project.link,
-    image: project.image,
-    video: null,
-    year: project.year,
-    kind: project.language,
-  })),
-  ...linkedInProjects.map((project) => ({
-    id: `feature-${project.id}`,
-    name: project.name,
-    tagline: project.tagline,
-    description: project.description,
-    tags: [...project.tags],
-    link: project.link,
-    image: project.image,
-    video: null,
-    year: project.year,
-    kind: project.kind,
-  })),
-].filter((item, index, collection) => (
-  collection.findIndex((candidate) => candidate.name.toLowerCase() === item.name.toLowerCase()) === index
-));
+const pad = (value: number) => String(value).padStart(2, "0");
+
+function Media({ item }: { item: WorkItem }) {
+  if (item.image) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={item.image} alt={`${item.name} preview`} loading="lazy" draggable={false} />
+    );
+  }
+  if (item.video) {
+    return <video src={item.video} muted loop playsInline autoPlay preload="metadata" />;
+  }
+  return (
+    <div className="work-media-type">
+      <span>{item.label}</span>
+      <strong>{item.name}</strong>
+    </div>
+  );
+}
+
+function WorkLinks({ item }: { item: WorkItem }) {
+  return (
+    <div className="work-links">
+      {item.links.map((link) => {
+        const external = !link.href.startsWith("#");
+        return (
+          <a
+            href={link.href}
+            key={link.href}
+            target={external ? "_blank" : undefined}
+            rel={external ? "noopener noreferrer" : undefined}
+          >
+            {link.label}
+            <span aria-hidden="true">{external ? "↗" : "↓"}</span>
+          </a>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Projects() {
   const root = useRef<HTMLElement>(null);
-  const stage = useRef<HTMLDivElement>(null);
-  const direction = useRef(1);
-  const pointer = useRef({ id: -1, startX: 0, moved: false });
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const selected = workCollection[selectedIndex];
+  const [filter, setFilter] = useState<WorkFilter>("all");
+  const [openId, setOpenId] = useState<string | null>(work[0].id);
+  const [previewId, setPreviewId] = useState<string>(work[0].id);
 
-  const selectProject = (index: number) => {
-    const normalized = (index + workCollection.length) % workCollection.length;
-    if (normalized === selectedIndex) return;
-    direction.current = normalized > selectedIndex ? 1 : -1;
-    if (
-      selectedIndex === 0 &&
-      normalized === workCollection.length - 1
-    ) direction.current = -1;
-    if (
-      selectedIndex === workCollection.length - 1 &&
-      normalized === 0
-    ) direction.current = 1;
-    setSelectedIndex(normalized);
-  };
+  const visible = useMemo(
+    () => (filter === "all" ? work : work.filter((item) => item.kind === filter)),
+    [filter],
+  );
+  const preview = visible.find((item) => item.id === previewId) ?? visible[0] ?? work[0];
 
   useEffect(() => {
     const loadRequestedProject = (event: Event) => {
       const id = (event as CustomEvent<{ id?: string }>).detail?.id;
-      const index = workCollection.findIndex((item) => item.id === id);
-      if (index >= 0) selectProject(index);
+      if (!id || !work.some((item) => item.id === id)) return;
+      setFilter("all");
+      setOpenId(id);
+      setPreviewId(id);
+      window.setTimeout(() => {
+        root.current
+          ?.querySelector<HTMLElement>(`[data-work-id="${id}"]`)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 120);
     };
 
     window.addEventListener("portfolio:load-project", loadRequestedProject);
     return () => window.removeEventListener("portfolio:load-project", loadRequestedProject);
-  });
-
-  useEffect(() => {
-    root.current
-      ?.querySelector<HTMLElement>(`[data-carousel-index="${selectedIndex}"]`)
-      ?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-  }, [selectedIndex]);
+  }, []);
 
   useGSAP(
     () => {
-      gsap.from(".work-carousel", {
-        y: 72,
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".work-carousel",
-          start: "top 84%",
-        },
+      const motion = gsap.matchMedia();
+      motion.add("(prefers-reduced-motion: no-preference)", () => {
+        const rows = gsap.utils.toArray<HTMLElement>(".work-row");
+        gsap.set(rows, { opacity: 0, y: 22 });
+        ScrollTrigger.batch(rows, {
+          start: "top 94%",
+          once: true,
+          onEnter: (batch) =>
+            gsap.to(batch, {
+              opacity: 1,
+              y: 0,
+              stagger: 0.05,
+              duration: 0.7,
+              ease: "power3.out",
+              overwrite: true,
+              clearProps: "transform",
+            }),
+        });
       });
+      return () => motion.revert();
     },
-    { scope: root },
+    { scope: root, dependencies: [filter] },
   );
 
   useGSAP(
     () => {
-      const travel = direction.current * 54;
-      gsap.timeline()
-        .fromTo(
-          ".carousel-media-frame",
-          { x: travel, opacity: .35, clipPath: direction.current > 0
-            ? "inset(0 0 0 18%)"
-            : "inset(0 18% 0 0)" },
-          {
-            x: 0,
-            opacity: 1,
-            clipPath: "inset(0 0 0 0)",
-            duration: .82,
-            ease: "power3.out",
-          },
-        )
-        .fromTo(
-          ".carousel-project-copy > *",
-          { x: direction.current * 28, opacity: 0 },
-          {
-            x: 0,
-            opacity: 1,
-            duration: .58,
-            stagger: .055,
-            ease: "power3.out",
-          },
-          .12,
-        );
+      gsap.fromTo(
+        ".work-preview-media",
+        { opacity: 0.35, scale: 1.04 },
+        { opacity: 1, scale: 1, duration: 0.6, ease: "power2.out" },
+      );
+      gsap.fromTo(
+        ".work-preview-copy > *",
+        { y: 10, opacity: 0 },
+        { y: 0, opacity: 1, stagger: 0.05, duration: 0.42, ease: "power2.out" },
+      );
     },
-    { scope: root, dependencies: [selectedIndex] },
+    { scope: root, dependencies: [previewId] },
   );
 
-  const pointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    pointer.current = { id: event.pointerId, startX: event.clientX, moved: false };
-    event.currentTarget.setPointerCapture(event.pointerId);
-    event.currentTarget.classList.add("is-dragging");
+  const toggle = (id: string) => {
+    setOpenId((current) => (current === id ? null : id));
+    setPreviewId(id);
   };
 
-  const pointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
-    const delta = event.clientX - pointer.current.startX;
-    if (Math.abs(delta) > 5) pointer.current.moved = true;
-    gsap.set(stage.current, {
-      x: gsap.utils.clamp(-46, 46, delta * .18),
-    });
-  };
-
-  const pointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
-    const delta = event.clientX - pointer.current.startX;
-    event.currentTarget.releasePointerCapture(event.pointerId);
-    event.currentTarget.classList.remove("is-dragging");
-    gsap.to(stage.current, { x: 0, duration: .48, ease: "back.out(2)" });
-    if (Math.abs(delta) > 54) selectProject(selectedIndex + (delta < 0 ? 1 : -1));
-  };
-
-  const keyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      selectProject(selectedIndex - 1);
-    }
-    if (event.key === "ArrowRight") {
-      event.preventDefault();
-      selectProject(selectedIndex + 1);
-    }
-  };
+  const primary = preview.links[0];
+  const primaryExternal = !primary.href.startsWith("#");
 
   return (
-    <section
-      className="work-section work-carousel-section"
-      id="project-reel"
-      ref={root}
-      tabIndex={0}
-      onKeyDown={keyDown}
-    >
-      <div className="projector-intro carousel-intro shell">
+    <section className="work-index-section" id="project-reel" ref={root}>
+      <div className="projector-intro work-intro shell">
         <p className="chapter-line">Selected work</p>
         <h2>
-          Built things,
-          <span>not case-study theatre.</span>
+          Everything I&apos;ve shipped,
+          <span>on one page.</span>
         </h2>
         <p>
-          A moving shelf of products, experiments, and systems. Swipe the image or pick
-          anything from the reel.
+          {work.length} products, tools, and experiments, newest first. Skim the list and
+          open any row for the story, the stack, and the links.
         </p>
       </div>
 
-      <div className="work-carousel shell" aria-roledescription="carousel">
-        <header className="carousel-toolbar">
-          <div>
-            <span>Project reel</span>
-            <strong>{selected.name}</strong>
+      <div className="work-index shell">
+        <div className="work-toolbar">
+          <div className="work-filters" role="group" aria-label="Filter projects">
+            {workFilters.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                aria-pressed={filter === option.id}
+                onClick={() => setFilter(option.id)}
+              >
+                {option.label}
+                <small>{pad(workCounts[option.id])}</small>
+              </button>
+            ))}
           </div>
-          <div className="carousel-controls">
-            <span>
-              {String(selectedIndex + 1).padStart(2, "0")}
-              <i>/</i>
-              {String(workCollection.length).padStart(2, "0")}
-            </span>
-            <button
-              type="button"
-              onClick={() => selectProject(selectedIndex - 1)}
-              aria-label="Previous project"
-            >
-              ←
-            </button>
-            <button
-              type="button"
-              onClick={() => selectProject(selectedIndex + 1)}
-              aria-label="Next project"
-            >
-              →
-            </button>
-          </div>
-        </header>
+          <p className="work-toolbar-hint">
+            {visible.length === work.length
+              ? `${pad(work.length)} projects`
+              : `${pad(visible.length)} of ${pad(work.length)}`}
+            <i aria-hidden="true">·</i>
+            newest first
+          </p>
+        </div>
 
-        <div
-          className="carousel-active-slide"
-          key={selected.id}
-          aria-live="polite"
-        >
-          <div
-            className="carousel-media-frame"
-            ref={stage}
-            onPointerDown={pointerDown}
-            onPointerMove={pointerMove}
-            onPointerUp={pointerUp}
-            onPointerCancel={pointerUp}
-          >
-            {selected.image || selected.video ? (
-              <div className="carousel-media-mat">
-                {selected.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={selected.image} alt={`${selected.name} project preview`} draggable={false} />
-                ) : (
-                  <video
-                    src={selected.video!}
-                    muted
-                    loop
-                    playsInline
-                    autoPlay
-                    preload="metadata"
-                  />
-                )}
-              </div>
-            ) : (
-              <div className="carousel-type-preview">
-                <span>{selected.kind}</span>
-                <strong>{selected.name}</strong>
-              </div>
-            )}
-            <span className="carousel-media-index">
-              {String(selectedIndex + 1).padStart(2, "0")}
-            </span>
-            <span className="carousel-swipe-note">drag to browse</span>
-          </div>
+        <div className="work-layout">
+          <ol className="work-list" aria-label="Projects">
+            {visible.map((item, index) => {
+              const open = item.id === openId;
+              return (
+                <li
+                  className={`work-row ${open ? "is-open" : ""} ${item.id === previewId ? "is-previewing" : ""}`}
+                  data-work-id={item.id}
+                  data-status={item.status}
+                  key={item.id}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType !== "touch") setPreviewId(item.id);
+                  }}
+                  onFocus={() => setPreviewId(item.id)}
+                >
+                  <button
+                    type="button"
+                    className="work-row-head"
+                    onClick={() => toggle(item.id)}
+                    aria-expanded={open}
+                    aria-controls={`work-detail-${item.id}`}
+                  >
+                    <span className="work-row-index">{pad(index + 1)}</span>
+                    <span className="work-row-title">
+                      <strong>{item.name}</strong>
+                      <span>{item.tagline}</span>
+                    </span>
+                    <span className="work-row-meta">
+                      <span>{item.label}</span>
+                      <span>{item.year}</span>
+                    </span>
+                    <span className="work-row-toggle" aria-hidden="true">
+                      <i />
+                      <i />
+                    </span>
+                  </button>
 
-          <article className="carousel-project-copy">
-            <div className="carousel-project-meta">
-              <span>{selected.year}</span>
-              <span>{selected.kind}</span>
+                  <div
+                    className="work-row-detail"
+                    id={`work-detail-${item.id}`}
+                    inert={!open}
+                  >
+                    <div className="work-row-detail-inner">
+                      <div className="work-row-detail-content">
+                        {open ? (
+                          <div className="work-row-media" aria-hidden="true">
+                            <Media item={item} />
+                          </div>
+                        ) : null}
+                        <p>{item.description}</p>
+                        {item.with ? <p className="work-row-with">Built with {item.with}</p> : null}
+                        <ul className="work-tags" aria-label={`${item.name} stack`}>
+                          {item.tags.map((tag) => <li key={tag}>{tag}</li>)}
+                        </ul>
+                        <WorkLinks item={item} />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+
+          <aside className="work-preview" aria-label="Project preview">
+            <div className="work-preview-frame">
+              <div className="work-preview-media" key={preview.id}>
+                <Media item={preview} />
+              </div>
+              <span className="work-preview-index" aria-hidden="true">
+                {pad(work.indexOf(preview) + 1)} / {pad(work.length)}
+              </span>
             </div>
-            <p className="carousel-project-tagline">{selected.tagline}</p>
-            <h3>{selected.name}</h3>
-            <p className="carousel-project-description">{selected.description}</p>
-            <ul aria-label={`${selected.name} technologies`}>
-              {selected.tags.slice(0, 5).map((tag) => <li key={tag}>{tag}</li>)}
-            </ul>
-            {selected.link ? (
-              <a href={selected.link} target="_blank" rel="noopener noreferrer">
-                View the project <span>↗</span>
+            <div className="work-preview-copy">
+              <span className="work-preview-kind">
+                {preview.label} · {preview.year}
+              </span>
+              <strong>{preview.name}</strong>
+              <p>{preview.tagline}</p>
+              <a
+                href={primary.href}
+                target={primaryExternal ? "_blank" : undefined}
+                rel={primaryExternal ? "noopener noreferrer" : undefined}
+              >
+                {primary.label} <span aria-hidden="true">{primaryExternal ? "↗" : "↓"}</span>
               </a>
-            ) : (
-              <span className="carousel-private-note">Private working project</span>
-            )}
-          </article>
+            </div>
+          </aside>
         </div>
-
-        <div className="carousel-progress" aria-hidden="true">
-          <span style={{ transform: `scaleX(${(selectedIndex + 1) / workCollection.length})` }} />
-        </div>
-
-        <nav className="carousel-reel" aria-label="Choose a project">
-          {workCollection.map((item, index) => (
-            <button
-              className={index === selectedIndex ? "is-active" : ""}
-              data-carousel-index={index}
-              key={item.id}
-              type="button"
-              onClick={() => selectProject(index)}
-              aria-current={index === selectedIndex ? "true" : undefined}
-            >
-              <span className="carousel-reel-thumb">
-                {item.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.image} alt="" loading="lazy" />
-                ) : item.video ? (
-                  <video src={item.video} muted playsInline preload="metadata" />
-                ) : (
-                  <i>{item.name.slice(0, 2).toUpperCase()}</i>
-                )}
-              </span>
-              <span>
-                <small>{String(index + 1).padStart(2, "0")}</small>
-                <strong>{item.name}</strong>
-              </span>
-            </button>
-          ))}
-        </nav>
       </div>
     </section>
   );

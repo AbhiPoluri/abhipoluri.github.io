@@ -62,6 +62,7 @@ export default function Nav() {
         </a>
 
         <div className="nav-links">
+          <a href="#games">Games</a>
           <a href="#work">Selected work</a>
           <a href="#about">About</a>
           <a href="#contact">Contact</a>
