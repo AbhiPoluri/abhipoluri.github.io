@@ -31,16 +31,25 @@ const wandrSans = Work_Sans({
   display: "swap",
 });
 
+const title = "Abhi Poluri · Games, AI tools and apps";
+const description =
+  "I'm Abhi, an SFU business student concentrating in MIS. I make games, AI tools and apps, including Wandr, which is on the App Store.";
+
 export const metadata: Metadata = {
-  title: "Abhi Poluri — Product, Strategy & Technology",
-  description:
-    "Abhi Poluri is an SFU business student and product builder working across strategy, software, and AI.",
-  keywords: ["Abhi Poluri", "product builder", "Simon Fraser University", "SFU", "strategy", "AI"],
+  title,
+  description,
+  keywords: ["Abhi Poluri", "SFU", "Simon Fraser University", "MIS", "Wandr", "games", "AI tools", "product"],
   openGraph: {
-    title: "Abhi Poluri — Product, Strategy & Technology",
-    description:
-      "Business student and hands-on builder working where product strategy, software, and AI meet.",
+    title,
+    description,
     type: "website",
+    url: "https://abhipoluri.github.io",
+    siteName: "Abhi Poluri",
+  },
+  twitter: {
+    card: "summary",
+    title,
+    description,
   },
 };
 
