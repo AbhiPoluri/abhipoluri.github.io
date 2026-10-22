@@ -40,6 +40,8 @@ export default function PlayLayer() {
     };
     const draw = () => {
       context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      const accent =
+        getComputedStyle(document.documentElement).getPropertyValue("--st-accent").trim() || "#2b44ff";
       if (document.body.classList.contains("is-cursor-stolen")) points = [];
       const pins = Array.from(document.querySelectorAll<HTMLElement>(".fallen-letter.is-nailed"))
         .map((letter) => {
@@ -60,17 +62,19 @@ export default function PlayLayer() {
           context.beginPath();
           context.moveTo(pins[first].x, pins[first].y);
           context.lineTo(pins[second].x, pins[second].y);
-          context.strokeStyle = `rgba(201, 74, 45, ${(1 - distance / 260) * 0.34})`;
+          context.strokeStyle = accent;
+          context.globalAlpha = (1 - distance / 260) * 0.34;
           context.lineWidth = 1.15;
           context.setLineDash([2, 6]);
           context.stroke();
         }
       }
       context.setLineDash([]);
+      context.globalAlpha = 0.72;
       pins.forEach((pin) => {
         context.beginPath();
         context.arc(pin.x, pin.y, 2.2, 0, Math.PI * 2);
-        context.fillStyle = "rgba(201, 74, 45, .72)";
+        context.fillStyle = accent;
         context.fill();
       });
       if (points.length > 1) {
@@ -82,13 +86,15 @@ export default function PlayLayer() {
           context.beginPath();
           context.moveTo(previous.x, previous.y);
           context.lineTo(point.x, point.y);
-          context.strokeStyle = `rgba(207, 74, 45, ${point.life * 0.42})`;
+          context.strokeStyle = accent;
+          context.globalAlpha = point.life * 0.42;
           context.lineWidth = point.life * 5;
           context.stroke();
           point.life -= 0.035;
         }
         points = points.filter((point) => point.life > 0);
       }
+      context.globalAlpha = 1;
       frame = requestAnimationFrame(draw);
     };
     const keydown = (event: KeyboardEvent) => {

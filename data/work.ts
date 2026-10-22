@@ -132,15 +132,18 @@ export const work: WorkItem[] = [
     name: "Wandr",
     tagline: "Find your people. Anywhere.",
     description:
-      "A travel-social app that matches you with people heading to the same city on overlapping dates. Co-founded with Parth Shah; I am the CTO and built most of it: a ranked discovery deck, matches and group chat, trips, Sign in with Apple, a transactional email system on Resend, and an iOS build through Capacitor. Currently invite-only behind a waitlist.",
+      "A travel-social app that matches you with people heading to the same city on overlapping dates. Co-founded with Parth Shah; I am the CTO and built most of it: a ranked discovery deck, matches and group chat, trips, Sign in with Apple, a transactional email system on Resend, and an iOS build through Capacitor. Live on the App Store since September 2026.",
     tags: ["Next.js", "Supabase", "Capacitor", "Resend", "iOS"],
     year: "2026",
     kind: "product",
     label: "Travel social",
     status: "live",
-    image: "/previews/wandr.jpg",
+    image: "/previews/wandr-lockup.png",
     video: null,
-    links: [{ label: "Visit wandrapp.ca", href: "https://www.wandrapp.ca" }],
+    links: [
+      { label: "App Store", href: "https://apps.apple.com/ca/app/wandr-find-your-people/id6804356314" },
+      { label: "Visit wandrapp.ca", href: "https://www.wandrapp.ca" },
+    ],
     with: "Parth Shah",
   },
   {

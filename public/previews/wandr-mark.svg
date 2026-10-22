@@ -1,0 +1,8 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Wandr Upstroke bird">
+  <g transform="translate(7 18) scale(1.2)">
+    <path d="M35.5 26 4 13.5 27.5 31.5Z" fill="#F5A623"/>
+    <path d="M35.5 26 68 9 44.5 31.5Z" fill="#F5A623"/>
+    <path d="m27.5 31.5 8-5.5 9 5.5-5.25 12Z" fill="#E0941C"/>
+    <path d="m27.5 31.5 8-5.5-1.75 8.5Z" fill="#FDFAF6" opacity=".2"/>
+  </g>
+</svg>

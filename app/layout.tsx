@@ -1,26 +1,33 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Funnel_Display, Funnel_Sans, Libre_Baskerville, Work_Sans } from "next/font/google";
 import Script from "next/script";
-import "./globals.css";
-import "./work.css";
-import "./footer.css";
+import "./statement.css";
+import "./eggs.css";
 
-const sans = Geist({
+const sans = Funnel_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
-const mono = Geist_Mono({
-  variable: "--font-mono",
+const display = Funnel_Display({
+  variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
 });
 
-const display = Instrument_Serif({
-  variable: "--font-display",
+// Wandr's own brand faces, used only inside its feature panel.
+const wandrSerif = Libre_Baskerville({
+  variable: "--font-wandr-serif",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const wandrSans = Work_Sans({
+  variable: "--font-wandr-sans",
+  subsets: ["latin"],
   display: "swap",
 });
 
@@ -41,8 +48,19 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${sans.variable} ${mono.variable} ${display.variable}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${sans.variable} ${display.variable} ${wandrSerif.variable} ${wandrSans.variable}`}>
+        <Script id="theme-init" strategy="beforeInteractive">
+          {`
+            (function () {
+              try {
+                var html = document.documentElement;
+                var theme = localStorage.getItem("theme");
+                if (theme === "light" || theme === "dark") html.dataset.theme = theme;
+              } catch (error) {}
+            })();
+          `}
+        </Script>
         <Script id="reset-refresh-scroll" strategy="beforeInteractive">
           {`
             if ("scrollRestoration" in history) {

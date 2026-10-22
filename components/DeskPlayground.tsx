@@ -471,7 +471,7 @@ export default function DeskPlayground() {
     setCreatureMood("braced");
     document.body.classList.add("is-desk-chaos");
     const targets = gsap.utils.toArray<HTMLElement>(
-      ".hero-scrap-slot, .work-row, .projector-intro > *, .forge-materials button",
+      ".st-chip, .st-tag, .st-names a, .st-duo figure, .st-pill, .st-facts span",
     );
     gsap.to(targets, {
       x: () => gsap.utils.random(-24, 24),

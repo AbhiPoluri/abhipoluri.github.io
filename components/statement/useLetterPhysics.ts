@@ -1,19 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 import { Draggable } from "gsap/Draggable";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { wordEasterEggs, type WordEasterEgg } from "@/data/wordEasterEggs";
 
-gsap.registerPlugin(useGSAP, Draggable, ScrollTrigger);
-
-const words = [
-  { text: "MAKE", serif: false },
-  { text: "IT", serif: true },
-  { text: "REAL", serif: false },
-];
+gsap.registerPlugin(Draggable);
 
 const photoSearchOverrides: Record<string, string> = {
   AI: "small robot",
@@ -66,11 +58,15 @@ const loadWordPhoto = async (
   }
 };
 
-export default function Hero() {
-  const root = useRef<HTMLElement>(null);
+/**
+ * The hero's letter toy, lifted from the original Hero so any `.hero-letter`
+ * can use it: hit a letter three times to knock it loose, drag it, tap to nail
+ * it, hold Shift to pull loose letters toward the cursor, and line letters up
+ * to spell a word from `wordEasterEggs`.
+ */
+export function useLetterPhysics() {
   const hits = useRef(new Map<number, number>());
   const draggables = useRef<Draggable[]>([]);
-  const scrapDraggables = useRef<Draggable[]>([]);
   const fallenLetters = useRef<HTMLElement[]>([]);
   const wordCooldown = useRef(new Set<string>());
   const pendingWord = useRef<{
@@ -79,7 +75,6 @@ export default function Hero() {
   } | null>(null);
   const gyroActive = useRef(false);
   const gyroRequested = useRef(false);
-  const [released, setReleased] = useState(0);
 
   useEffect(() => {
     let magnetActive = false;
@@ -178,6 +173,17 @@ export default function Hero() {
     return () => window.removeEventListener("deviceorientation", tilt);
   }, []);
 
+  useEffect(() => {
+    const instances = draggables;
+    const letters = fallenLetters;
+    return () => {
+      instances.current.forEach((item) => item.kill());
+      instances.current = [];
+      letters.current.forEach((letter) => letter.remove());
+      letters.current = [];
+    };
+  }, []);
+
   const armGyroscope = () => {
     if (gyroRequested.current) return;
     gyroRequested.current = true;
@@ -199,6 +205,40 @@ export default function Hero() {
     });
     pendingWord.current?.prompt.remove();
     pendingWord.current = null;
+  };
+
+  const fallToFloor = (element: HTMLElement, delay = 0, preferredX?: number) => {
+    if (!element.isConnected || element.dataset.nailed === "true") return;
+    const bounds = element.getBoundingClientRect();
+    const distance = Math.max(
+      0,
+      document.documentElement.scrollHeight - (bounds.bottom + window.scrollY) - 28,
+    );
+    if (distance < 2) return;
+    const currentX = Number(gsap.getProperty(element, "x")) || 0;
+    const currentY = Number(gsap.getProperty(element, "y")) || 0;
+    const xNudge = gsap.utils.clamp(
+      -bounds.left + 12,
+      window.innerWidth - bounds.right - 12,
+      gsap.utils.random(-110, 110),
+    );
+
+    const falling = gsap.timeline({ delay });
+    falling
+      .to(element, {
+        x: preferredX ?? currentX + xNudge,
+        y: currentY + distance,
+        rotation: `+=${gsap.utils.random(-420, 420)}`,
+        duration: gsap.utils.clamp(1.4, 10, distance / 760),
+        ease: "power1.in",
+      })
+      .to(element, {
+        y: `-=${gsap.utils.random(22, 48)}`,
+        rotation: `+=${gsap.utils.random(-28, 28)}`,
+        duration: 0.22,
+        ease: "power2.out",
+      })
+      .to(element, { y: "+=36", duration: 0.38, ease: "bounce.out" });
   };
 
   const spawnWordArtifact = (egg: WordEasterEgg, letters: HTMLElement[]) => {
@@ -283,16 +323,16 @@ export default function Hero() {
     artifact.addEventListener("click", (event) => {
       if (event.target !== photo || artifact.classList.contains("is-shattering")) return;
       armGyroscope();
-      const hits = Number(artifact.dataset.photoHits ?? 0) + 1;
-      artifact.dataset.photoHits = String(hits);
+      const photoHits = Number(artifact.dataset.photoHits ?? 0) + 1;
+      artifact.dataset.photoHits = String(photoHits);
       artifact.setAttribute(
         "aria-label",
-        hits < 3
-          ? `${egg.word}: ${3 - hits} more ${hits === 2 ? "tap" : "taps"} to break it.`
+        photoHits < 3
+          ? `${egg.word}: ${3 - photoHits} more ${photoHits === 2 ? "tap" : "taps"} to break it.`
           : `${egg.word} is breaking into letters.`,
       );
 
-      if (hits < 3) {
+      if (photoHits < 3) {
         gsap.fromTo(
           artifact,
           { x: -5, rotation: -2.5 },
@@ -421,141 +461,6 @@ export default function Hero() {
       }
     }
     clearPendingWord();
-  };
-
-  useGSAP(
-    () => {
-      gsap.from(".hero-letter-glyph", {
-        yPercent: 125,
-        rotation: () => gsap.utils.random(-4, 4),
-        opacity: 0,
-        duration: 1.25,
-        stagger: { each: 0.045, from: "random" },
-        ease: "power4.out",
-      });
-      gsap.from(".hero-support", {
-        y: 24,
-        opacity: 0,
-        duration: 0.8,
-        delay: 0.55,
-        ease: "power3.out",
-      });
-      gsap.from(".hero-scrap-slot", {
-        y: 34,
-        rotation: () => gsap.utils.random(-12, 12),
-        opacity: 0,
-        duration: 0.9,
-        delay: 0.65,
-        stagger: 0.11,
-        ease: "back.out(1.7)",
-      });
-
-      const scrapSlots = gsap.utils.toArray<HTMLElement>(".hero-scrap-slot");
-      scrapSlots.forEach((slot, index) => {
-        gsap.to(slot, {
-          y: index % 2 ? -9 : 8,
-          duration: 2.8 + index * 0.55,
-          delay: 1.6 + index * 0.18,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-        });
-      });
-
-      const scraps = gsap.utils.toArray<HTMLElement>(".hero-scrap");
-      const scrapInstances = scraps.flatMap((scrap) =>
-        Draggable.create(scrap, {
-          type: "x,y",
-          bounds: root.current,
-          edgeResistance: 0.68,
-          cursor: "grab",
-          activeCursor: "grabbing",
-          onPress() {
-            delete scrap.dataset.dragged;
-            scrap.classList.add("is-held");
-            gsap.to(scrap, { scale: 1.055, duration: 0.16, ease: "power2.out" });
-          },
-          onDrag() {
-            if (Math.hypot(this.x, this.y) > 7) scrap.dataset.dragged = "true";
-          },
-          onRelease() {
-            scrap.classList.remove("is-held");
-            gsap.to(scrap, {
-              scale: 1,
-              duration: 0.38,
-              ease: "back.out(1.8)",
-            });
-            window.setTimeout(() => delete scrap.dataset.dragged, 0);
-          },
-        }),
-      );
-      scrapDraggables.current = scrapInstances;
-
-      const letters = gsap.utils.toArray<HTMLElement>(".hero-letter");
-      const scrollTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top top",
-          end: "+=110%",
-          pin: ".hero-pin",
-          scrub: 1,
-          invalidateOnRefresh: true,
-        },
-      });
-      scrollTimeline
-        .to(".hero-hint", { opacity: 0, y: -20, duration: 0.15 }, 0)
-        .to(".hero-desk-scraps", { opacity: 0, y: -80, scale: 0.92, duration: 0.3 }, 0.03)
-        .to(letters, {
-          y: (index) => (index % 2 ? "34vh" : "-28vh"),
-          x: (index) => `${(index - letters.length / 2) * 4.5}vw`,
-          rotation: (index) => (index % 2 ? 32 : -28),
-          opacity: 0.08,
-          stagger: 0.012,
-          duration: 0.9,
-          ease: "none",
-        }, 0.08)
-        .to(".hero-exit-line", { scaleX: 1, duration: 0.7, ease: "none" }, 0.2);
-
-      return () => {
-        scrapInstances.forEach((instance) => instance.kill());
-        scrapDraggables.current = [];
-      };
-    },
-    { scope: root },
-  );
-
-  const fallToFloor = (element: HTMLElement, delay = 0, preferredX?: number) => {
-    if (!element.isConnected || element.dataset.nailed === "true") return;
-    const bounds = element.getBoundingClientRect();
-    const distance = Math.max(
-      0,
-      document.documentElement.scrollHeight - (bounds.bottom + window.scrollY) - 28,
-    );
-    if (distance < 2) return;
-    const currentX = Number(gsap.getProperty(element, "x")) || 0;
-    const currentY = Number(gsap.getProperty(element, "y")) || 0;
-    const xNudge = gsap.utils.clamp(
-      -bounds.left + 12,
-      window.innerWidth - bounds.right - 12,
-      gsap.utils.random(-110, 110),
-    );
-
-    const falling = gsap.timeline({ delay });
-    falling
-      .to(element, {
-        x: preferredX ?? currentX + xNudge,
-        y: currentY + distance,
-        rotation: `+=${gsap.utils.random(-420, 420)}`,
-        duration: gsap.utils.clamp(1.4, 10, distance / 760),
-        ease: "power1.in",
-      })
-      .to(element, {
-        y: `-=${gsap.utils.random(22, 48)}`,
-        rotation: `+=${gsap.utils.random(-28, 28)}`,
-        duration: 0.22,
-        ease: "power2.out",
-      })
-      .to(element, { y: "+=36", duration: 0.38, ease: "bounce.out" });
   };
 
   const setNailPoint = (
@@ -711,12 +616,12 @@ export default function Hero() {
   };
 
   const release = (element: HTMLElement, index: number, delay = 0) => {
-    if (element.dataset.released === "true" || !root.current) return;
+    if (element.dataset.released === "true") return;
     element.dataset.released = "true";
     hits.current.set(index, 3);
     const bounds = element.getBoundingClientRect();
     const computed = window.getComputedStyle(element);
-    const clone = element.cloneNode(true) as HTMLButtonElement;
+    const clone = element.cloneNode(true) as HTMLElement;
     const startTop = bounds.top + window.scrollY;
     const xTravel = gsap.utils.clamp(
       -bounds.left + 12,
@@ -735,6 +640,7 @@ export default function Hero() {
       fontSize: computed.fontSize,
       fontWeight: computed.fontWeight,
       lineHeight: computed.lineHeight,
+      letterSpacing: computed.letterSpacing,
     });
     document.body.appendChild(clone);
     fallenLetters.current.push(clone);
@@ -747,10 +653,9 @@ export default function Hero() {
     gsap.set(element, { opacity: 0, pointerEvents: "none" });
     makeDraggable(clone);
     fallToFloor(clone, delay, xTravel);
-    setReleased((value) => value + 1);
   };
 
-  const hit = (event: React.PointerEvent<HTMLButtonElement>, index: number) => {
+  const hit = (event: React.PointerEvent<HTMLElement>, index: number) => {
     armGyroscope();
     const element = event.currentTarget;
     if (element.dataset.released === "true") return;
@@ -772,196 +677,5 @@ export default function Hero() {
       .to(element, { y: "+=10", scale: 1, duration: 0.35, ease: "elastic.out(1, .28)" });
   };
 
-  const dropAll = () => {
-    gsap.utils.toArray<HTMLElement>(".hero-letter").forEach((letter, index) => {
-      release(letter, index, index * 0.045);
-    });
-  };
-
-  const reset = () => {
-    draggables.current.forEach((item) => item.kill());
-    draggables.current = [];
-    gsap.killTweensOf(fallenLetters.current);
-    fallenLetters.current.forEach((letter) => letter.remove());
-    fallenLetters.current = [];
-    gsap.utils.toArray<HTMLElement>(".word-artifact").forEach((artifact) => artifact.remove());
-    clearPendingWord();
-    wordCooldown.current.clear();
-    hits.current.clear();
-    const letters = gsap.utils.toArray<HTMLElement>(".hero-letter");
-    gsap.killTweensOf(letters);
-    letters.forEach((letter) => {
-      delete letter.dataset.released;
-      delete letter.dataset.hits;
-      letter.style.pointerEvents = "";
-    });
-    gsap.to(letters, {
-      x: 0,
-      y: 0,
-      rotation: 0,
-      scale: 1,
-      opacity: 1,
-      duration: 0.9,
-      stagger: { each: 0.025, from: "random" },
-      ease: "elastic.out(1, .4)",
-    });
-    setReleased(0);
-  };
-
-  const moveHeroAtmosphere = (event: React.PointerEvent<HTMLElement>) => {
-    if (!root.current) return;
-    const bounds = root.current.getBoundingClientRect();
-    const x = gsap.utils.clamp(0, 1, (event.clientX - bounds.left) / bounds.width);
-    const y = gsap.utils.clamp(0, 1, (event.clientY - bounds.top) / bounds.height);
-    root.current.style.setProperty("--paper-light-x", `${x * 100}%`);
-    root.current.style.setProperty("--paper-light-y", `${y * 100}%`);
-    const thread = root.current.querySelector<SVGPathElement>(".hero-scrap-thread path");
-    thread?.setAttribute(
-      "d",
-      `M 22 252 C ${118 + x * 58} ${76 + y * 48}, ${286 + x * 82} ${246 - y * 52}, 474 62`,
-    );
-  };
-
-  const resetHeroAtmosphere = () => {
-    if (!root.current) return;
-    root.current
-      .querySelector<SVGPathElement>(".hero-scrap-thread path")
-      ?.setAttribute("d", "M 22 252 C 146 108, 332 218, 474 62");
-  };
-
-  const activateScrap = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    projectId?: string,
-  ) => {
-    const scrap = event.currentTarget;
-    if (scrap.dataset.dragged === "true") return;
-    if (!projectId) {
-      scrap.classList.toggle("is-revealed");
-      return;
-    }
-    window.dispatchEvent(
-      new CustomEvent("portfolio:load-project", { detail: { id: projectId } }),
-    );
-    document.querySelector("#project-reel")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  let letterIndex = 0;
-
-  return (
-    <section
-      className="hero"
-      id="top"
-      ref={root}
-      onPointerMove={moveHeroAtmosphere}
-      onPointerLeave={resetHeroAtmosphere}
-    >
-      <div className="hero-pin">
-        <div className="shell hero-inner">
-          <div className="hero-support">
-            <p>Vancouver, BC · Product, strategy, technology</p>
-            <p className="hero-hint">Hit a letter three times. Hold Shift to attract the loose ones.</p>
-          </div>
-          <h1 className="hero-title" aria-label="Make it real">
-            {words.map((word) => (
-              <span className={`hero-word ${word.serif ? "is-serif" : ""}`} key={word.text}>
-                {word.text.split("").map((letter) => {
-                  const index = letterIndex++;
-                  return (
-                    <button
-                      className="hero-letter"
-                      data-letter={letter}
-                      key={`${letter}-${index}`}
-                      onPointerDown={(event) => hit(event, index)}
-                      type="button"
-                      aria-label={`${letter}, hit three times to release`}
-                    >
-                      <span className="hero-letter-glyph" aria-hidden="true">
-                        {letter}
-                      </span>
-                    </button>
-                  );
-                })}
-              </span>
-            ))}
-          </h1>
-          <aside className="hero-desk-scraps" aria-label="Notes from Abhi's desk">
-            <svg
-              className="hero-scrap-thread"
-              viewBox="0 0 500 320"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <path d="M 22 252 C 146 108, 332 218, 474 62" />
-            </svg>
-            <span className="hero-pencil-note" aria-hidden="true">drag, toss, click ↗</span>
-
-            <div className="hero-scrap-slot hero-scrap-slot-building">
-              <button
-                className="hero-scrap"
-                type="button"
-                onClick={(event) => activateScrap(event, "propking")}
-                aria-label="Now building: PropKing. Open it in the project viewer."
-              >
-                <span className="hero-scrap-face">
-                  <small>Now building / 01</small>
-                  <strong>PropKing</strong>
-                  <span>honest sports props research</span>
-                  <em>send to viewer ↘</em>
-                </span>
-              </button>
-            </div>
-
-            <div className="hero-scrap-slot hero-scrap-slot-shipped">
-              <button
-                className="hero-scrap"
-                type="button"
-                onClick={(event) => activateScrap(event, "errand")}
-                aria-label="Just shipped: Errand. Open it in the project viewer."
-              >
-                <span className="hero-scrap-face">
-                  <small>Just shipped / 02</small>
-                  <strong>Errand</strong>
-                  <span>a calm agent, built from scratch</span>
-                  <em>send to viewer ↘</em>
-                </span>
-              </button>
-            </div>
-
-            <div className="hero-scrap-slot hero-scrap-slot-obsession">
-              <button
-                className="hero-scrap"
-                type="button"
-                onClick={(event) => activateScrap(event)}
-                aria-label="Current obsession. Click to reveal a letter-game hint."
-              >
-                <span className="hero-scrap-face">
-                  <small>Current obsession / 03</small>
-                  <strong>judgment</strong>
-                  <span>after AI closes the building gap</span>
-                  <em className="hero-scrap-secret">try: KART · KARMA · ART</em>
-                </span>
-              </button>
-            </div>
-          </aside>
-          <div className="hero-bottom">
-            <div className="hero-intro-copy">
-              <p>
-                I&apos;m Abhi. I turn rough problems into useful products across AI, planning,
-                and new ventures.
-              </p>
-            </div>
-            <div className="hero-actions">
-              <button type="button" onClick={dropAll}>Drop all</button>
-              <button type="button" onClick={reset}>Rebuild</button>
-              <a href="#work">Enter the work ↓</a>
-            </div>
-          </div>
-          <div className="hero-counter" aria-live="polite">
-            <strong>{released}</strong> / 10 released
-          </div>
-        </div>
-        <span className="hero-exit-line" aria-hidden="true" />
-      </div>
-    </section>
-  );
+  return { hit };
 }
