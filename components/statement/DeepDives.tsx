@@ -9,7 +9,7 @@ export default function DeepDives() {
   return (
     <section className="st-dives st-px" id="case-studies" aria-labelledby="dives-title">
       <h2 className="st-big" id="dives-title">
-        My top three. <span className="st-dim">I&apos;d walk you through any of them in an interview.</span>
+        Three projects <span className="st-dim">I&apos;d pick to walk you through in an interview.</span>
       </h2>
 
       <article className="st-feature" aria-labelledby="wandr-title">
@@ -45,11 +45,16 @@ export default function DeepDives() {
         </dl>
       </article>
 
-      {deepDives.map(({ item, headline, facts }, index) => (
+      {deepDives.map(({ item, headline, fit, facts }, index) => (
         <article className={`st-dive${index % 2 ? " is-flipped" : ""}`} key={item.id}>
           {item.image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.image} alt={`${item.name} screenshot`} loading="lazy" />
+            <img
+              className={fit === "contain" ? "is-contain" : undefined}
+              src={item.image}
+              alt={fit === "contain" ? `${item.name} results chart` : `${item.name} screenshot`}
+              loading="lazy"
+            />
           ) : (
             <div className="st-dive-blank">{item.name}: no screenshot yet</div>
           )}

@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 const secrets = {
-  ship: "SHIP MODE: everything wants to move.",
-  abhi: "ABHI MODE: builder frequency unlocked.",
+  ship: "Ship mode on. The accent turns green.",
+  abhi: "Abhi mode on.",
 };
 
 export default function PlayLayer() {

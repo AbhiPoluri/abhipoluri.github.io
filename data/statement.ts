@@ -36,23 +36,26 @@ export const playableGames = games.filter((item) => item.status === "playable");
 export interface DeepDive {
   item: WorkItem;
   headline: string;
+  /** "contain" shows the whole image, for charts that must not be cropped. */
+  fit?: "cover" | "contain";
   facts: Array<{ label: string; value: string }>;
 }
 
 /** Projects two and three of the top three, after the Wandr feature. */
 export const deepDives: DeepDive[] = [
   {
-    item: byId("propking"),
-    headline: "Two books, one honest board.",
+    item: byId("github-sql-r1"),
+    headline: "Text-to-SQL from 47.5% to 55% for $5.83.",
+    fit: "contain",
     facts: [
-      { label: "What it does", value: "Pairs lines from two pick'em books and scores every prop by cross-book value and calibrated probability" },
-      { label: "Proof", value: "Slips auto-grade against box scores; the insights page publishes the model's own Brier score and ROI" },
-      { label: "Stack", value: "Next.js, TypeScript, Supabase, edge functions" },
+      { label: "What I did", value: "Distilled DeepSeek-V4-Pro into Qwen2.5-Coder-7B with LoRA on Apple Silicon and scored every checkpoint on BIRD by execution match" },
+      { label: "Result", value: "DPO made it worse, and the best checkpoint turned up at iteration fifty" },
+      { label: "Stack", value: "Python, MLX-LM, LoRA, BIRD" },
     ],
   },
   {
     item: byId("github-boardroom"),
-    headline: "One desk for an entire agent team.",
+    headline: "Runs a team of Claude Code agents from one dashboard.",
     facts: [
       { label: "Role", value: "Product, interaction, architecture, full-stack build" },
       { label: "Stack", value: "Next.js, TypeScript, SQLite, node-pty, SSE, Git worktrees" },
