@@ -36,11 +36,11 @@ export default function Contact() {
       aria-labelledby="contact-title"
     >
       <h2 className="st-big" id="contact-title">
-        Hiring an intern? Email me, or load {pill("Product")} {pill("Strategy")} and{" "}
-        {pill("Code")} first and see what happens.
+        Hiring an intern for {pill("Product")} {pill("Strategy")} and{" "}
+        {pill("Code")}? Email me.
       </h2>
       <p className="st-forged" role="status">
-        {complete ? "Ready to ship. The invitation is below." : `${loaded.length} / 3 loaded`}
+        {complete ? "All three. I'd like to hear about it." : `${loaded.length} of 3 picked`}
       </p>
       <a className="st-mail" href="mailto:abhiram.poluri@gmail.com">
         abhiram.poluri@gmail.com

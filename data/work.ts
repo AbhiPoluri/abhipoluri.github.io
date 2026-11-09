@@ -40,9 +40,9 @@ export const work: WorkItem[] = [
   {
     id: "gleipnir",
     name: "Gleipnir",
-    tagline: "A parry duel in two inks, and five bosses that teach themselves.",
+    tagline: "A two-ink parry duel with five bosses you learn to read.",
     description:
-      "A 2.5D Norse folk-horror action game where the shield is half the moveset. Light weapons get a forgiving parry window and heavy ones a tight one, so picking the greatsword is choosing a harder read, and mashing decays the window to nothing. Five bosses share one readability grammar — one tell per attack, a consistent commit cue, red means you cannot parry it — so learning one fight teaches you how to read the next. I re-scoped the whole game after playing it: the metroidvania levels felt like a chore, so it became a boss-first structure of short missions.",
+      "A 2.5D Norse folk-horror action game where the shield is half the moveset. Light weapons get a forgiving parry window and heavy ones a tight one, so picking the greatsword is choosing a harder read, and mashing decays the window to nothing. Five bosses share one readability grammar: one tell per attack, a consistent commit cue, and red for anything you cannot parry. Learn one fight and you can read the next. I played the metroidvania levels, found them a chore, and re-scoped the game into short boss-first missions.",
     tags: ["Godot 4", "GDScript", "Combat design", "Boss design", "Playtest tuning"],
     year: "2026",
     kind: "game",
@@ -50,14 +50,14 @@ export const work: WorkItem[] = [
     status: "playable",
     image: "/previews/gleipnir.webp",
     video: null,
-    links: [{ label: "Play on itch.io", href: "https://sprite123.itch.io/gleipnir" }],
+    links: [{ label: "Download on itch.io", href: "https://sprite123.itch.io/gleipnir" }],
   },
   {
     id: "the-merciful",
     name: "The Merciful",
     tagline: "A kraken cult, a 24-day voyage, and a crew that is starting to talk.",
     description:
-      "You are a secret kraken-worshipper cooking for a 1715 brig. Suspicion and rumour do the work an enemy AI usually does, and the whole thing is built on one rule: you should only ever be caught for a reason you could have read. Conversations are timed rather than menu-driven, so hesitating costs something. Playtesting found one loop beat everything else, so I priced every action in time and re-ran scripted strategies across seeds until careful play could lose again.",
+      "You are a secret kraken-worshipper cooking for a 1715 brig. Suspicion and rumour do the work an enemy AI usually does, and the whole thing is built on one rule: you should only ever be caught for a reason you could have read. Conversations are timed rather than menu-driven, so hesitating costs something. In playtests I found one loop that beat everything else, so I priced every action in time and re-ran scripted strategies across seeds until careful play could lose again.",
     tags: ["Godot 4", "GDScript", "Systems design", "Narrative design", "Balance sweeps"],
     year: "2026",
     kind: "game",
@@ -65,14 +65,14 @@ export const work: WorkItem[] = [
     status: "playable",
     image: "/previews/the-merciful.webp",
     video: null,
-    links: [{ label: "Play on itch.io", href: "https://sprite123.itch.io/the-merciful" }],
+    links: [{ label: "Download on itch.io", href: "https://sprite123.itch.io/the-merciful" }],
   },
   {
     id: "oddlings-studio",
     name: "Oddlings Studio",
-    tagline: "Procedural 3D assets you can review instead of just accept.",
+    tagline: "Procedural 3D assets you review and sign off on like code.",
     description:
-      "The asset pipeline both of my Godot games run on. Agents author JSON specs, the studio builds them into rigged meshes, and a human reviews the result in an outliner with notes and draw-marks — generated art is something you edit and sign off on, not a black box. It is deterministic, so the same seed produces the same bytes and an asset can be regenerated and diffed like code. Two mesh backends: parts as separate closed solids, or fused as a signed distance field into one manifold mesh under a triangle budget.",
+      "The asset pipeline both of my Godot games run on. Agents write JSON specs, the studio builds them into rigged meshes, and you review the result in an outliner with notes and draw-marks before you edit it or sign off. It is deterministic: the same seed produces the same bytes, so you can regenerate an asset and diff it like code. Two mesh backends: parts as separate closed solids, or fused as a signed distance field into one manifold mesh under a triangle budget.",
     tags: ["TypeScript", "Procedural generation", "Rigging", "MCP", "Tooling"],
     year: "2026",
     kind: "game",
@@ -85,9 +85,9 @@ export const work: WorkItem[] = [
   {
     id: "fly-balatro",
     name: "fly-balatro",
-    tagline: "Can a fruit fly's brain play Balatro? Mostly, no.",
+    tagline: "A fruit fly's connectome plays Balatro and never beats a shuffled control.",
     description:
-      "I wired the MaleCNS fly connectome up as a frozen spiking reservoir, fed it encoded Balatro hand state, and put decoders on top to see whether real neural wiring beat a shuffled control. It did not. The honest result is a string of null and negative findings with the controls documented, including a retraction of my own earlier claim once I found the shuffled baseline was broken.",
+      "I wired the MaleCNS fly connectome up as a frozen spiking reservoir, fed it encoded Balatro hand state, and put decoders on top to see whether real neural wiring beat a shuffled control. It did not. I documented a string of null and negative findings with their controls, including a retraction of my own earlier claim once I found a bug in the shuffled baseline.",
     tags: ["Python", "Connectomics", "Reservoir computing", "Experiment design"],
     year: "2026",
     kind: "game",
@@ -100,9 +100,9 @@ export const work: WorkItem[] = [
   {
     id: "propking",
     name: "PropKing",
-    tagline: "Sports props research: two books, one honest board.",
+    tagline: "Scores player props across two pick'em books.",
     description:
-      "A research tool for player props. It ingests lines from two pick'em books, pairs them, and scores every prop by cross-book value and calibrated probability instead of hype. A parlay slip de-vigs prices and grades legs, saved slips auto-grade against ingested box scores, and an insights page publishes the model's own Brier score and ROI.",
+      "A research tool for player props. It ingests lines from two pick'em books, pairs them, and scores every prop by cross-book value and calibrated probability. A parlay slip de-vigs prices and grades legs, PropKing grades saved slips against ingested box scores, and an insights page shows the model's own Brier score and ROI.",
     tags: ["Next.js", "TypeScript", "Supabase", "Edge functions", "Calibration"],
     year: "2026",
     kind: "product",
@@ -149,7 +149,7 @@ export const work: WorkItem[] = [
   {
     id: "github-boardroom",
     name: "Boardroom",
-    tagline: "One desk for an entire team of coding agents.",
+    tagline: "Spawns, watches and coordinates a team of Claude Code agents.",
     description:
       "An orchestration platform for spawning, monitoring, and coordinating fleets of Claude Code agents. Named personas run in isolated Git worktrees, plans execute sequentially or in parallel, finished work lands in a push-request queue, and a nine-tool MCP server exposes the whole thing to any MCP client.",
     tags: ["TypeScript", "Next.js", "MCP", "node-pty", "Git worktrees"],
@@ -170,7 +170,7 @@ export const work: WorkItem[] = [
     name: "par0: Prompt Golf",
     tagline: "The shortest prompt that passes every hidden test wins.",
     description:
-      "A browser game where players compress prompts for gpt-oss-20b across 19 holes. Deterministic code-first grading handles most cases, an LLM judge covers the fuzzy ones, and a live leaderboard turns prompt design into a competitive sport.",
+      "A browser game where players compress prompts for gpt-oss-20b across 19 holes. Deterministic code checks grade most holes, an LLM judge grades the fuzzy ones, and players compete on a live leaderboard.",
     tags: ["gpt-oss-20b", "LLM evaluation", "Prompt design", "Leaderboards"],
     year: "2026",
     kind: "ai",
@@ -185,7 +185,7 @@ export const work: WorkItem[] = [
     name: "abhimem",
     tagline: "Persistent memory for Claude Code that never leaves your machine.",
     description:
-      "Automatically extracts facts from every Claude Code session with a local LLM, embeds them with nomic-embed-text, and recalls them semantically next time. Zero cloud, zero API keys, exposed as an MCP server.",
+      "Extracts facts from each Claude Code session with a local LLM, embeds them with nomic-embed-text, and recalls them by meaning in the next session. It runs as an MCP server with no cloud and no API keys.",
     tags: ["Python", "FastMCP", "SQLite", "Ollama", "Claude Code"],
     year: "2026",
     kind: "ai",
@@ -201,9 +201,9 @@ export const work: WorkItem[] = [
   {
     id: "feature-claude-quant-lab",
     name: "Claude Quant Lab",
-    tagline: "AI closed the building gap. The judgment gap stayed open.",
+    tagline: "Six weeks building a trading stack with Claude, outside my field.",
     description:
-      "A six-week experiment in unfamiliar territory: a Python walk-forward backtester, a six-account paper-trading engine, and a live dashboard. It became a study of where AI accelerates building and where expert skepticism still matters.",
+      "A six-week experiment in unfamiliar territory: a Python walk-forward backtester, a six-account paper-trading engine, and a live dashboard. I wrote up where Claude sped up the build and where I still needed an expert's skepticism.",
     tags: ["Python", "Claude", "Backtesting", "TradingView"],
     year: "2026",
     kind: "research",
@@ -223,7 +223,7 @@ export const work: WorkItem[] = [
     name: "SQL-R1",
     tagline: "A $5.83 text-to-SQL distillation experiment.",
     description:
-      "Distilled DeepSeek-V4-Pro into Qwen2.5-Coder-7B on Apple Silicon with LoRA and scored every checkpoint on BIRD with deterministic execution match. Accuracy went from 47.5% to 55%, DPO actively hurt, and the best checkpoint was hiding at iteration fifty.",
+      "Distilled DeepSeek-V4-Pro into Qwen2.5-Coder-7B on Apple Silicon with LoRA and scored every checkpoint on BIRD with deterministic execution match. Accuracy went from 47.5% to 55%, DPO made it worse, and the best checkpoint turned up at iteration fifty.",
     tags: ["Python", "MLX-LM", "LoRA", "Distillation", "BIRD"],
     year: "2026",
     kind: "research",
@@ -243,7 +243,7 @@ export const work: WorkItem[] = [
   {
     id: "github-cleanup-app",
     name: "Cleanup",
-    tagline: "Rewrite any selected text without leaving your flow.",
+    tagline: "Highlight text in any Mac app and rewrite it with one hotkey.",
     description:
       "A native macOS menu bar app: highlight text anywhere, hit one hotkey, get rewrites from a local model or your ChatGPT subscription in a popup. Mono theme, a one-to-five variant slider, and a Windows tray version on the roadmap.",
     tags: ["Swift", "macOS", "Local models", "Native app"],
@@ -258,9 +258,9 @@ export const work: WorkItem[] = [
   {
     id: "github-seatline",
     name: "Seatline",
-    tagline: "Get the Cineplex seats you actually want.",
+    tagline: "Alerts you when the Cineplex seats you picked free up.",
     description:
-      "A seat-availability watcher for Cineplex screenings. Pick the seats you care about and it polls the seat map, then alerts you the moment a cancellation frees one up.",
+      "A seat-availability watcher for Cineplex screenings. Pick the seats you care about and it polls the seat map, then alerts you when someone cancels and one opens up.",
     tags: ["JavaScript", "React", "Node.js", "Seat maps"],
     year: "2026",
     kind: "product",
@@ -273,7 +273,7 @@ export const work: WorkItem[] = [
   {
     id: "github-llmcost",
     name: "llmcost",
-    tagline: "Know what your LLM calls cost, automatically.",
+    tagline: "A local proxy that logs what each LLM call costs.",
     description:
       "A local API proxy that forwards and logs requests across Anthropic, OpenAI, Groq, and Google AI, with a dashboard for spend by model, project, and day.",
     tags: ["Python", "API proxy", "Analytics", "Local-first"],
@@ -288,9 +288,9 @@ export const work: WorkItem[] = [
   {
     id: "product-1",
     name: "PocketLog",
-    tagline: "Receipts in. Clarity out.",
+    tagline: "Scan receipts, set budgets and share them with family.",
     description:
-      "A mobile-first expense tracker with receipt scanning, budgets, and family sharing. Scan a receipt and it fills the amount, category, and merchant; the budget updates live and the shared picture compounds with every scan.",
+      "A mobile-first expense tracker with receipt scanning, budgets, and family sharing. Scan a receipt and PocketLog fills in the amount, category and merchant, then updates the shared budget.",
     tags: ["React Native", "AI", "Finance", "Mobile"],
     year: "2025",
     kind: "product",
@@ -306,9 +306,9 @@ export const work: WorkItem[] = [
   {
     id: "project-3",
     name: "NotesGraph",
-    tagline: "Notes that link themselves.",
+    tagline: "A notes app that links related notes for you.",
     description:
-      "A local-first notes app with a live knowledge graph. Notes connect automatically by semantic similarity, so you can watch ideas cluster in real time. Built for thinking, not filing.",
+      "A local-first notes app with a live knowledge graph. It links notes by semantic similarity, so you can watch related ideas cluster as you write.",
     tags: ["React", "TypeScript", "D3.js", "Vector search"],
     year: "2025",
     kind: "product",
@@ -324,7 +324,7 @@ export const work: WorkItem[] = [
   {
     id: "project-4",
     name: "Nexus Planner",
-    tagline: "Turn a goal into a plan you can actually run.",
+    tagline: "Breaks a goal into a plan with risk and critical-path checks.",
     description:
       "AI-assisted project planning for engineering teams. Decomposes high-level goals into executable plans with Monte Carlo risk simulation, critical-path analysis, and circular-dependency detection across Agile, Shape Up, Waterfall, and Kanban.",
     tags: ["React", "TypeScript", "Zustand", "IndexedDB"],
@@ -344,7 +344,7 @@ export const work: WorkItem[] = [
     name: "Ollama Router",
     tagline: "Send each prompt to the right local model.",
     description:
-      "A lightweight inference router that dispatches prompts to different Ollama models by task: code to a coder model, reasoning to a larger one, quick answers to a small one. Zero cloud, full control.",
+      "A lightweight inference router that dispatches prompts to different Ollama models by task: code to a coder model, reasoning to a larger one, quick answers to a small one. Everything runs on your machine.",
     tags: ["Node.js", "Ollama", "Local LLM", "Routing"],
     year: "2025",
     kind: "tool",
@@ -359,7 +359,7 @@ export const work: WorkItem[] = [
     name: "ClaudeInOne",
     tagline: "213 skills, 37 agents, 95 commands for Claude Code.",
     description:
-      "A production-grade development framework for Claude Code covering the full software lifecycle, from architecture and testing to deployment. Skills, specialist agents, and slash commands that work together out of the box.",
+      "A development framework for Claude Code that covers the software lifecycle, from architecture and testing to deployment, with skills, specialist agents and slash commands.",
     tags: ["Prompt engineering", "Framework design", "DevOps", "Claude Code"],
     year: "2025",
     kind: "ai",

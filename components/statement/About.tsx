@@ -5,16 +5,17 @@ export default function About() {
         I&apos;m in SFU&apos;s BBA program,{" "}
         <span className="st-dim">concentrating in management information systems.</span>
       </h2>
-      <p className="st-mid" style={{ marginTop: 40, maxWidth: 1100 }}>
-        Before I wrote any software, I started a retail-arbitrage business{" "}
-        <span className="st-accent">with no money</span>. It turned a profit.
+      <p className="st-mid">
+        I started a retail-arbitrage business{" "}
+        <span className="st-accent">with no money</span> before I wrote any software, and it turned a
+        profit.
       </p>
-      <div className="st-facts">
+      <p className="st-facts">
         <span>SFU BBA</span>
         <span>MIS concentration</span>
         <span>Vancouver, BC</span>
-        <span>Looking for product &amp; tech internships</span>
-      </div>
+        <span>Open to product and tech internships</span>
+      </p>
     </section>
   );
 }

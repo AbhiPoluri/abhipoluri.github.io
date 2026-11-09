@@ -10,7 +10,7 @@ export default function GamesBand() {
   return (
     <section className="st-band st-px" id="games" aria-labelledby="games-title">
       <h2 className="st-big" id="games-title">
-        Two are Godot games. <span className="st-dim">You can download both.</span>
+        I build games in Godot. <span className="st-dim">You can download both from itch.io.</span>
       </h2>
       <div className="st-duo">
         {playableGames.map((item, index) => {
@@ -40,23 +40,23 @@ export default function GamesBand() {
         })}
       </div>
       <p className="st-mid st-after">
-        Their 3D assets come out of Oddlings Studio{" "}
+        I made their 3D assets in Oddlings Studio{" "}
         {oddlings?.image ? (
           <a className="st-chip" href={oddlings.links[0]?.href} target="_blank" rel="noreferrer" aria-label="Oddlings Studio repository">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={oddlings.image} alt="" />
           </a>
         ) : null}
-        , a pipeline I wrote so I could review generated art the way I review code.{" "}
+        , a pipeline I wrote to review generated art the way I review code.{" "}
         <span className="st-dim">
-          I also hooked a fruit fly&apos;s connectome up to Balatro{" "}
+          I also wired a fruit fly&apos;s connectome into Balatro{" "}
           {fly?.image ? (
             <a className="st-chip" href={fly.links[0]?.href} target="_blank" rel="noreferrer" aria-label="fly-balatro repository">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={fly.image} alt="" />
             </a>
           ) : null}
-          . It never beat the shuffled control.
+          , and it never beat the shuffled control.
         </span>
       </p>
     </section>
